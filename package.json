@@ -3,6 +3,7 @@
 	"version": "1.0.3",
 	"description": "CLINQ CRM-Bridge Server",
 	"main": "dist/index.js",
+	"files": ["dist"],
 	"repository": "github:sipgate/clinq-crm-bridge",
 	"contributors": [
 		{
