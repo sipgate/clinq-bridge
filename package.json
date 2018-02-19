@@ -1,6 +1,6 @@
 {
 	"name": "clinq-crm-bridge",
-	"version": "1.0.12",
+	"version": "1.0.13",
 	"description": "CLINQ CRM-Bridge Server",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
