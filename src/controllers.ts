@@ -6,7 +6,7 @@ export interface IControllers {
 	handleContacts: (req: Request, res: Response) => Promise<any>;
 }
 
-type ControllerFactory = (impl: IBridgemplementation) => IControllers;
+export type ControllerFactory = (impl: IBridgemplementation) => IControllers;
 
 export const controllerFactory: ControllerFactory = (impl): IControllers => ({
 	async handleContacts(req: Request, res: Response): Promise<any> {
