@@ -1,0 +1,9 @@
+{
+  "name": "clinq-crm-bridge",
+  "version": "0.1.0",
+  "description": "CLINQ CRM-Bridge Server",
+  "main": "index.js",
+  "repository": "git@github.com:sipgate/clinq-crm-bridge.git",
+  "author": "Benjamin Kluck <kluck@sipgate.de>",
+  "license": "Apache License 2.0"
+}
