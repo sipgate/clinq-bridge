@@ -13,7 +13,7 @@ const bridge = require("clinq-crm-bridge");
 
 const adapter = {
 	getContacts: function() {
-		return Promise.resolve([{ name: "ben", email: "ben@fug.lu" }]);
+		return Promise.resolve([{ name: "Benjamin Kluck", email: "ben@fug.lu" }]);
 	}
 };
 
