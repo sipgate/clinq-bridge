@@ -1,13 +1,13 @@
 {
 	"name": "clinq-crm-bridge",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "CLINQ CRM-Bridge Server",
 	"main": "dist/index.js",
 	"repository": "github:sipgate/clinq-crm-bridge",
 	"contributors": [
 		{
 			"name": "Benjamin Kluck",
-			"email": "kluck@sipgate.de"
+			"email": "fuglu@fuglu.net"
 		},
 		{
 			"name": "Felix Gladisch",
@@ -23,7 +23,8 @@
 		"test": "jest",
 		"build": "rimraf dist && tsc",
 		"lint": "tslint 'src/**/*.ts'",
-		"precommit": "lint-staged"
+		"precommit": "lint-staged",
+		"prepublish": "yarn build"
 	},
 	"lint-staged": {
 		"*.{ts,json,md}": ["prettier --write", "git add"]
