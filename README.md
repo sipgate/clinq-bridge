@@ -12,9 +12,8 @@ yarn add clinq-crm-bridge
 const bridge = require("clinq-crm-bridge");
 
 const adapter = {
-	getContacts: function() {
-		return Promise.resolve([{ name: "Benjamin Kluck", email: "ben@fug.lu" }]);
-	}
+	getContacts: () =>
+		Promise.resolve([{ name: "Benjamin Kluck", email: "ben@fug.lu" }])
 };
 
 bridge.start(adapter);
