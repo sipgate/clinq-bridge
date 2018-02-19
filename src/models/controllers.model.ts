@@ -1,7 +1,7 @@
 import { Response } from "express";
 
-import { ClinqRequest } from "./clinq-request.model";
+import { ClinqRequest, Contact } from ".";
 
 export interface Controllers {
-	handleContacts: (req: ClinqRequest, res: Response) => Promise<any>;
+	handleContacts: (req: ClinqRequest, res: Response) => Promise<Contact[]>;
 }

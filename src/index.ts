@@ -21,4 +21,4 @@ export function start(impl: BridgeImplementation): Server {
 	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
-export { BridgeImplementation } from "./models";
+export { BridgeImplementation, Contact } from "./models";

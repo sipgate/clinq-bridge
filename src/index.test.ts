@@ -1,11 +1,16 @@
 import { Server } from "http";
 
 import { start } from "./";
-import { BridgeImplementation } from "./models";
+import { BridgeImplementation, Contact } from "./models";
 
 const testImplementation: BridgeImplementation = {
-	getContacts(): Promise<any> {
-		return Promise.resolve([]);
+	getContacts(): Promise<Contact[]> {
+		return Promise.resolve([
+			{
+				name: "Max Mustermann",
+				phoneNumbers: ["+49220123456789"]
+			}
+		]);
 	}
 };
 
