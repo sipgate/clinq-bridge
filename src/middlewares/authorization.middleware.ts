@@ -1,6 +1,6 @@
 import * as authorization from "auth-header";
 import { NextFunction, Response } from "express";
-import { IClinqRequest } from "../models";
+import { ClinqRequest, ServerError } from "../models";
 
 export interface IAuth {
 	scheme: string;
@@ -9,15 +9,14 @@ export interface IAuth {
 }
 
 export const authorizationMiddleware: any = (
-	req: IClinqRequest,
+	req: ClinqRequest,
 	res: Response,
 	next: NextFunction
 ): void => {
 	const auth: string = req.get("authorization");
 
 	if (!auth) {
-		res.sendStatus(401);
-		return;
+		throw new ServerError(401, "Missing token.");
 	}
 
 	const { token } = authorization.parse(auth);

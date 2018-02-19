@@ -1,9 +1,9 @@
 import { Server } from "http";
 
 import { start } from "./";
-import { IBridgemplementation } from "./bridge-implementation.model";
+import { BridgeImplementation } from "./models";
 
-const testImplementation: IBridgemplementation = {
+const testImplementation: BridgeImplementation = {
 	getContacts(): Promise<any> {
 		return Promise.resolve([]);
 	}

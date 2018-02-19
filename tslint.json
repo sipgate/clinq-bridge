@@ -9,6 +9,7 @@
 			"member-variable-declaration"
 		],
 		"semicolon": true,
-		"no-implicit-dependencies": false
+		"no-implicit-dependencies": false,
+		"interface-name": false
 	}
 }

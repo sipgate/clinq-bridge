@@ -1,20 +1,20 @@
 import * as httpMocks from "node-mocks-http";
 
-import { IBridgemplementation } from "./bridge-implementation.model";
-import { controllerFactory, IControllers } from "./controllers";
+import { controllerFactory } from "./controllers";
+import { BridgeImplementation, ClinqRequest, Controllers } from "./models";
 
 const testContacts: any[] = [];
 
-const testImpl: IBridgemplementation = {
+const testImpl: BridgeImplementation = {
 	getContacts: () => Promise.resolve(testContacts)
 };
 
-const controllers: IControllers = controllerFactory(testImpl);
+const controllers: Controllers = controllerFactory(testImpl);
 
 describe("Controllers", () => {
 	it("should handle contacts", async () => {
-		const request: httpMocks.MockRequest = httpMocks.createRequest();
-		const response: httpMocks.MockResponse = httpMocks.createResponse();
+		const request: any = httpMocks.createRequest();
+		const response: any = httpMocks.createResponse();
 
 		await controllers.handleContacts(request, response);
 

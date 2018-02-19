@@ -1,5 +1,5 @@
 import { Request } from "express";
 
-export interface IClinqRequest extends Request {
+export interface ClinqRequest extends Request {
 	token: string;
 }
