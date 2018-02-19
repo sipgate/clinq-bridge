@@ -1,8 +1,16 @@
 import { Request, Response } from "express";
 
-export default impl => ({
-	async handleContacts(req: Request, res: Response) {
-		const contacts = await impl.getContacts();
+import { IBridgemplementation } from "./bridge-implementation.model";
+
+export interface IControllers {
+	handleContacts: (req: Request, res: Response) => Promise<any>;
+}
+
+type ControllerFactory = (impl: IBridgemplementation) => IControllers;
+
+export const controllerFactory: ControllerFactory = (impl): IControllers => ({
+	async handleContacts(req: Request, res: Response): Promise<any> {
+		const contacts: any[] = await impl.getContacts();
 
 		res.send(contacts);
 	}

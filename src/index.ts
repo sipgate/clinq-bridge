@@ -1,16 +1,17 @@
 import errorHandler from "errorhandler";
 import * as express from "express";
 
-import controllerFactory from "./controllers";
+import { IBridgemplementation } from "./bridge-implementation.model";
+import { controllerFactory, IControllers } from "./controllers";
 
-const port = process.env.PORT || 8080;
+const port: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
-app.use(errorHandler);
+app.use(errorHandler());
 
-export function start(impl) {
-	const controllers = controllerFactory(impl);
+export function start(impl: IBridgemplementation): void {
+	const controllers: IControllers = controllerFactory(impl);
 
 	app.get("/contacts", controllers.handleContacts);
 
