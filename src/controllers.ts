@@ -1,16 +1,16 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
-import { IBridgemplementation } from "./bridge-implementation.model";
+import { IBridgeImplementation, IClinqRequest } from "./models";
 
 export interface IControllers {
-	handleContacts: (req: Request, res: Response) => Promise<any>;
+	handleContacts: (req: IClinqRequest, res: Response) => Promise<any>;
 }
 
-export type ControllerFactory = (impl: IBridgemplementation) => IControllers;
+export type ControllerFactory = (impl: IBridgeImplementation) => IControllers;
 
 export const controllerFactory: ControllerFactory = (impl): IControllers => ({
-	async handleContacts(req: Request, res: Response): Promise<any> {
-		const contacts: any[] = await impl.getContacts();
+	async handleContacts(req: IClinqRequest, res: Response): Promise<any> {
+		const contacts: any[] = await impl.getContacts(req.token);
 
 		res.send(contacts);
 	}
