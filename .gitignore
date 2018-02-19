@@ -1,0 +1,18 @@
+# Node files
+node_modules
+npm-debug.log
+package-lock.json
+yarn-error.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+.tags
+
+#TypeScript
+dist
