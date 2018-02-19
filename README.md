@@ -1,2 +1,21 @@
-# clinq-crm-bridge
-Server library for CLINQ CRM integration
+# CLINQ CRM-Bridge Server
+
+## Installation
+
+```shell
+yarn add clinq-crm-bridge
+```
+
+## Quick Start
+
+```js
+const bridge = require("clinq-crm-bridge");
+
+const adapter = {
+	getContacts: function() {
+		return [{ name: "Benjamin Kluck", email: "ben@fug.lu" }];
+	}
+};
+
+bridge.start(adapter);
+```
