@@ -24,7 +24,7 @@
 		"build": "rimraf dist && tsc",
 		"lint": "tslint 'src/**/*.ts'",
 		"precommit": "lint-staged",
-		"prepublish": "yarn build"
+		"prepare": "yarn build"
 	},
 	"lint-staged": {
 		"*.{ts,json,md}": ["prettier --write", "git add"]
