@@ -1,6 +1,6 @@
 {
 	"name": "clinq-crm-bridge",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "CLINQ CRM-Bridge Server",
 	"main": "dist/index.js",
 	"repository": "github:sipgate/clinq-crm-bridge",
@@ -24,7 +24,7 @@
 		"build": "rimraf dist && tsc",
 		"lint": "tslint 'src/**/*.ts'",
 		"precommit": "lint-staged",
-		"prepare": "yarn build"
+		"prepublishOnly": "yarn build"
 	},
 	"lint-staged": {
 		"*.{ts,json,md}": ["prettier --write", "git add"]
