@@ -7,7 +7,7 @@ const port = process.env.PORT || 8080;
 
 const app: express.Application = express();
 
-app.use(errorHandler);
+app.use(errorHandler());
 
 export function start(impl) {
 	const controllers = controllerFactory(impl);
