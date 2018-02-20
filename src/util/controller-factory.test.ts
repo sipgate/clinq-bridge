@@ -1,27 +1,27 @@
 import * as httpMocks from "node-mocks-http";
 
-import { controllerFactory } from "./controllers";
 import {
-	BridgeImplementation,
 	ClinqRequest,
 	Contact,
-	Controllers
-} from "./models";
+	Controllers,
+	CrmAdapter
+} from "../models";
+import { controllerFactory } from "./controller-factory";
 
 const testContacts: Contact[] = [];
 
-const testImpl: BridgeImplementation = {
+const testAdapter: CrmAdapter = {
 	getContacts: () => Promise.resolve(testContacts)
 };
 
-const controllers: Controllers = controllerFactory(testImpl);
+const controllers: Controllers = controllerFactory(testAdapter);
 
 describe("Controllers", () => {
 	it("should handle contacts", async () => {
-		const request: any = httpMocks.createRequest();
+		const request: httpMocks.MockRequest = httpMocks.createRequest();
 		const response: httpMocks.MockResponse = httpMocks.createResponse();
 
-		await controllers.handleContacts(request, response);
+		await controllers.getContacts(request, response);
 
 		const data: Contact[] = response._getData();
 

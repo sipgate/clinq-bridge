@@ -10,6 +10,7 @@
 		],
 		"semicolon": true,
 		"no-implicit-dependencies": false,
-		"interface-name": false
+		"interface-name": false,
+		"no-any": true
 	}
 }

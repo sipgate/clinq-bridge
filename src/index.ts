@@ -1,9 +1,9 @@
 import * as express from "express";
 import { Server } from "http";
 
-import { controllerFactory } from "./controllers";
 import { authorizationMiddleware, errorHandlerMiddleware } from "./middlewares";
-import { BridgeImplementation, Controllers } from "./models";
+import { Controllers, CrmAdapter } from "./models";
+import { controllerFactory } from "./util";
 
 const port: number = Number(process.env.PORT) || 8080;
 
@@ -11,14 +11,14 @@ const app: express.Application = express();
 
 app.use(authorizationMiddleware);
 
-export function start(impl: BridgeImplementation): Server {
-	const controllers: Controllers = controllerFactory(impl);
+export function start(adapter: CrmAdapter): Server {
+	const controllers: Controllers = controllerFactory(adapter);
 
-	app.get("/contacts", controllers.handleContacts);
+	app.get("/contacts", controllers.getContacts);
 
 	app.use(errorHandlerMiddleware);
 
 	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
-export { BridgeImplementation, Contact } from "./models";
+export { CrmAdapter, Contact } from "./models";

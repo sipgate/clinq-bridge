@@ -1,7 +1,5 @@
-import { Response } from "express";
-
-import { ClinqRequest, Contact } from ".";
+import { Request, Response } from "express";
 
 export interface Controllers {
-	handleContacts: (req: ClinqRequest, res: Response) => Promise<Contact[]>;
+	getContacts: (req: Request, res: Response) => Promise<void>;
 }

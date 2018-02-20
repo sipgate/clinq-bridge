@@ -1,16 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 
+import { Server } from "http";
 import { ServerError } from "../models";
 
-export const errorHandlerMiddleware: any = (
-	err: any,
+export function errorHandlerMiddleware(
+	err: Error | ServerError,
 	req: Request,
 	res: Response,
 	next: NextFunction
-) => {
+): void {
 	if (err instanceof ServerError) {
-		return res.status(err.status).send(err.message);
+		res.status(err.status).send(err.message);
+		return;
 	}
 
 	res.status(500).send(err.message);
-};
+}

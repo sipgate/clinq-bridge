@@ -8,11 +8,11 @@ export interface IAuth {
 	token: string;
 }
 
-export const authorizationMiddleware: any = (
+export function authorizationMiddleware(
 	req: ClinqRequest,
 	res: Response,
 	next: NextFunction
-): void => {
+): void {
 	const auth: string = req.get("authorization");
 
 	if (!auth) {
@@ -24,4 +24,4 @@ export const authorizationMiddleware: any = (
 	req.token = token;
 
 	next();
-};
+}
