@@ -1,4 +1,9 @@
+export interface PhoneNumber {
+	label: string;
+	phoneNumber: string;
+}
+
 export interface Contact {
 	name: string;
-	phoneNumbers: string[];
+	phoneNumbers: PhoneNumber[];
 }

@@ -1,12 +1,6 @@
 import * as authorization from "auth-header";
 import { NextFunction, Request, Response } from "express";
-import { ServerError } from "../models";
-
-export interface IAuth {
-	scheme: string;
-	params: string;
-	token: string;
-}
+import { AuthInfo, ServerError } from "../models";
 
 export function authorizationMiddleware(
 	req: Request,
@@ -19,7 +13,7 @@ export function authorizationMiddleware(
 		throw new ServerError(401, "Missing token.");
 	}
 
-	const { token } = authorization.parse(auth);
+	const { token }: AuthInfo = authorization.parse(auth);
 
 	req.token = token;
 

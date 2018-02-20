@@ -3,7 +3,17 @@ import * as httpMocks from "node-mocks-http";
 import { Contact, Controllers, CrmAdapter } from "../models";
 import { controllerFactory } from "./controller-factory";
 
-const contactsMock: Contact[] = [];
+const contactsMock: Contact[] = [
+	{
+		name: "Max Mustermann",
+		phoneNumbers: [
+			{
+				label: "Mobile",
+				phoneNumber: "+4912345678910"
+			}
+		]
+	}
+];
 
 const ERROR_MESSAGE: string = "Error!";
 
