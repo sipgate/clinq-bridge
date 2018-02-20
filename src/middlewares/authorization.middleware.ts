@@ -1,6 +1,6 @@
 import * as authorization from "auth-header";
-import { NextFunction, Response } from "express";
-import { ClinqRequest, ServerError } from "../models";
+import { NextFunction, Request, Response } from "express";
+import { ServerError } from "../models";
 
 export interface IAuth {
 	scheme: string;
@@ -9,7 +9,7 @@ export interface IAuth {
 }
 
 export function authorizationMiddleware(
-	req: ClinqRequest,
+	req: Request,
 	res: Response,
 	next: NextFunction
 ): void {
