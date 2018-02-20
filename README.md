@@ -3,7 +3,7 @@
 This is the CLINQ CRM-Bridge Server.
 It provides a unified way to connect the CLINQ browser extension to any CRM software.
 
-# Bootstrapping a new Bridge
+## Bootstrapping a new bridge
 
 If you want to bootstrap a new CRM-Bridge you can use one of these repositories:
 
