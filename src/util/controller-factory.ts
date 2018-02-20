@@ -11,7 +11,7 @@ export const controllerFactory: ControllerFactory = (adapter): Controllers => ({
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const contacts: Contact[] = await adapter.getContacts(req.token);
+			const contacts: Contact[] = await adapter.getContacts(req.apiKey);
 
 			res.send(contacts);
 		} catch (error) {

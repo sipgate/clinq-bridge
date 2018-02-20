@@ -12,7 +12,7 @@ yarn add clinq-crm-bridge
 const bridge = require("clinq-crm-bridge");
 
 const adapter = {
-	getContacts: () =>
+	getContacts: apiKey =>
 		Promise.resolve([
 			{
 				name: "Benjamin Kluck",
