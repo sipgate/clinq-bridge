@@ -14,7 +14,15 @@ const bridge = require("clinq-crm-bridge");
 const adapter = {
 	getContacts: () =>
 		Promise.resolve([
-			{ name: "Benjamin Kluck", phoneNumbers: ["01579-9912345"] }
+			{
+				name: "Benjamin Kluck",
+				phoneNumbers: [
+					{
+						label: "Mobile",
+						phoneNumber: "+4915799912345"
+					}
+				]
+			}
 		])
 };
 
