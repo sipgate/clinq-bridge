@@ -7,8 +7,8 @@ It provides a unified way to connect the CLINQ browser extension to any CRM soft
 
 If you want to bootstrap a new CRM-Bridge you can use one of these repositories:
 
-* [JavaScript](https://github.com/sipgate/clinq-crm-bridge-boilerplate)
-* [TypeScript](https://github.com/sipgate/clinq-crm-bridge-boilerplate-typescript)
+* JavaScript: [clinq-crm-bridge-boilerplate](https://github.com/sipgate/clinq-crm-bridge-boilerplate)
+* TypeScript: [clinq-crm-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-crm-bridge-boilerplate-typescript)
 
 ## Installation
 
