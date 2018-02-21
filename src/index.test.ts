@@ -8,7 +8,12 @@ const testImplementation: CrmAdapter = {
 		return Promise.resolve([
 			{
 				name: "Max Mustermann",
-				phoneNumbers: ["+49220123456789"]
+				phoneNumbers: [
+					{
+						label: "Mobile",
+						phoneNumber: "+4915799912345"
+					}
+				]
 			}
 		]);
 	}

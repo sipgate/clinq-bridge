@@ -2,6 +2,6 @@
 
 declare namespace Express {
 	export interface Request {
-		token?: string;
+		apiKey?: string;
 	}
 }

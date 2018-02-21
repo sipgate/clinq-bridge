@@ -15,7 +15,7 @@ export class Controller {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const contacts: Contact[] = await this.adapter.getContacts(req.token);
+			const contacts: Contact[] = await this.adapter.getContacts(req.apiKey);
 			res.send(contacts);
 		} catch (error) {
 			next(error);

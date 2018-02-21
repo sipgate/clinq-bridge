@@ -10,12 +10,12 @@ export function authorizationMiddleware(
 	const auth: string = req.get("authorization");
 
 	if (!auth) {
-		throw new ServerError(401, "Missing token.");
+		throw new ServerError(401, "Missing apiKey.");
 	}
 
 	const { token }: AuthInfo = authorization.parse(auth);
 
-	req.token = token;
+	req.apiKey = token;
 
 	next();
 }
