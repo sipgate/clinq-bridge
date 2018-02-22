@@ -5,7 +5,7 @@ import {
 	MockResponse
 } from "node-mocks-http";
 
-import { Contact, Controller, CrmAdapter } from ".";
+import { Contact, Controller, CrmAdapter, ServerError } from ".";
 
 const contactsMock: Contact[] = [
 	{
@@ -21,41 +21,52 @@ const contactsMock: Contact[] = [
 
 const ERROR_MESSAGE: string = "Error!";
 
-const adapterMock: CrmAdapter = {
-	getContacts: () => Promise.resolve(contactsMock)
-};
-
-const errorAdapterMock: CrmAdapter = {
-	getContacts: () => Promise.reject(ERROR_MESSAGE)
-};
-
 describe("Controller", () => {
-	let nextMock: jest.Mock;
+	let request: MockRequest;
+	let response: MockResponse;
+	let next: jest.Mock;
 
 	beforeEach(() => {
-		nextMock = jest.fn();
+		request = createRequest();
+		response = createResponse();
+		next = jest.fn();
 	});
 
 	it("should handle contacts", async () => {
-		const controller: Controller = new Controller(adapterMock);
-		const requestMock: MockRequest = createRequest();
-		const responseMock: MockResponse = createResponse();
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve(contactsMock)
+		});
 
-		await controller.getContacts(requestMock, responseMock, nextMock);
+		await controller.getContacts(request, response, next);
 
-		const data: Contact[] = responseMock._getData();
+		const data: Contact[] = response._getData();
 
-		expect(nextMock).not.toBeCalled();
+		expect(next).not.toBeCalled();
 		expect(data).toBe(contactsMock);
 	});
 
 	it("should handle an error when retrieving contacts", async () => {
-		const controller: Controller = new Controller(errorAdapterMock);
-		const requestMock: MockRequest = createRequest();
-		const responseMock: MockResponse = createResponse();
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.reject(ERROR_MESSAGE)
+		});
 
-		await controller.getContacts(requestMock, responseMock, nextMock);
+		await controller.getContacts(request, response, next);
 
-		expect(nextMock).toBeCalledWith(ERROR_MESSAGE);
+		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+
+	it("should handle an error when contacts are not valid", async () => {
+		const contact: Contact = { ...contactsMock[0] };
+		delete contact.name;
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve([contact])
+		});
+
+		await controller.getContacts(request, response, next);
+
+		const error: ServerError = next.mock.calls[0][0];
+
+		expect(next).toBeCalled();
+		expect(error.status).toEqual(400);
 	});
 });
