@@ -20,4 +20,4 @@ export function start(adapter: CrmAdapter): Server {
 	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
-export { CrmAdapter, Contact } from "./models";
+export { CrmAdapter, CrmConfig, Contact } from "./models";
