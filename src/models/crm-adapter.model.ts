@@ -1,5 +1,5 @@
-import { Contact } from ".";
+import { Contact, CrmConfig } from ".";
 
 export interface CrmAdapter {
-	getContacts: (apiKey: string) => Promise<Contact[]>;
+	getContacts: (crmConfig: CrmConfig) => Promise<Contact[]>;
 }

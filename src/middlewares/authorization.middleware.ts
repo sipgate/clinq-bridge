@@ -7,15 +7,21 @@ export function authorizationMiddleware(
 	res: Response,
 	next: NextFunction
 ): void {
-	const auth: string = req.get("authorization");
+	const key: string = req.get("x-crm-key");
+	const url: string = req.get("x-crm-url");
 
-	if (!auth) {
+	if (!key) {
 		throw new ServerError(401, "Missing apiKey.");
 	}
 
-	const { token }: AuthInfo = authorization.parse(auth);
+	if (!url) {
+		throw new ServerError(401, "Missing apiUrl.");
+	}
+
+	const { token }: AuthInfo = authorization.parse(key);
 
 	req.apiKey = token;
+	req.apiUrl = token;
 
 	next();
 }

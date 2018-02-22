@@ -24,8 +24,8 @@ yarn add clinq-crm-bridge
 const bridge = require("clinq-crm-bridge");
 
 const adapter = {
-	getContacts: async apiKey => {
-		// TODO: Fetch contacts from CRM using apiKey or throw on error
+	getContacts: async ({ apiKey, apiUrl }) => {
+		// TODO: Fetch contacts from CRM using apiKey and apiUrl or throw on error
 		return [
 			{
 				name: "Benjamin Kluck",
