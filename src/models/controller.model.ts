@@ -2,7 +2,7 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { ServerError } from "./server-error.model";
 
-import * as contactsSchema from "../schemas/contacts.json";
+import contactsSchema from "../schemas/contacts";
 
 import { Contact, CrmAdapter } from ".";
 
