@@ -1,6 +1,6 @@
 import * as authorization from "auth-header";
 import { NextFunction, Request, Response } from "express";
-import { AuthInfo, ServerError } from "../models";
+import { ServerError } from "../models";
 
 export function authorizationMiddleware(
 	req: Request,
@@ -18,10 +18,8 @@ export function authorizationMiddleware(
 		throw new ServerError(401, "Missing apiUrl.");
 	}
 
-	const { token }: AuthInfo = authorization.parse(key);
-
-	req.apiKey = token;
-	req.apiUrl = token;
+	req.apiKey = key;
+	req.apiUrl = url;
 
 	next();
 }

@@ -3,4 +3,3 @@ export * from "./crm-config.model";
 export * from "./server-error.model";
 export * from "./controller.model";
 export * from "./contact.model";
-export * from "./auth-info.model";
