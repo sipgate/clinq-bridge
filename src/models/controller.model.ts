@@ -14,6 +14,8 @@ export class Controller {
 	constructor(adapter: CrmAdapter) {
 		this.adapter = adapter;
 		this.ajv = new Ajv();
+
+		this.getContacts = this.getContacts.bind(this);
 	}
 
 	public async getContacts(
