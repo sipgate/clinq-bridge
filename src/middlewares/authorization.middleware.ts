@@ -1,4 +1,3 @@
-import * as authorization from "auth-header";
 import { NextFunction, Request, Response } from "express";
 import { ServerError } from "../models";
 
