@@ -24,10 +24,7 @@ export class Controller {
 		next: NextFunction
 	): Promise<void> {
 		try {
-			const contacts: Contact[] = await this.adapter.getContacts({
-				apiKey: req.apiKey,
-				apiUrl: req.apiUrl
-			});
+			const contacts: Contact[] = await this.adapter.getContacts(req.crmConfig);
 			const valid: boolean | Ajv.Thenable<boolean> = this.ajv.validate(
 				contactsSchema,
 				contacts

@@ -1,8 +1,9 @@
-/* tslint:disable */
+import { CrmConfig } from "../models";
 
-declare namespace Express {
-	export interface Request {
-		apiKey?: string;
-		apiUrl?: string;
+declare global {
+	namespace Express {
+		export interface Request {
+			crmConfig: CrmConfig;
+		}
 	}
 }

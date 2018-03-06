@@ -9,16 +9,10 @@ export function extractHeaderMiddleware(
 	const key: string = req.get("x-crm-key");
 	const url: string = req.get("x-crm-url");
 
-	if (!key) {
-		throw new ServerError(401, "Missing apiKey.");
-	}
-
-	if (!url) {
-		throw new ServerError(401, "Missing apiUrl.");
-	}
-
-	req.apiKey = key;
-	req.apiUrl = url;
+	req.crmConfig = {
+		apiKey: key,
+		apiUrl: url
+	};
 
 	next();
 }
