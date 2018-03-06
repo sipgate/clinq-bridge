@@ -1,2 +1,2 @@
-export * from "./authorization.middleware";
+export * from "./extract-header.middleware";
 export * from "./error-handler.middleware";

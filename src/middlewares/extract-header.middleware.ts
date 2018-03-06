@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ServerError } from "../models";
 
-export function authorizationMiddleware(
+export function extractHeaderMiddleware(
 	req: Request,
 	res: Response,
 	next: NextFunction

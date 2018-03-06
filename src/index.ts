@@ -1,14 +1,14 @@
 import * as express from "express";
 import { Server } from "http";
 
-import { authorizationMiddleware, errorHandlerMiddleware } from "./middlewares";
+import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
 import { Controller, CrmAdapter } from "./models";
 
 const port: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
-app.use(authorizationMiddleware);
+app.use(extractHeaderMiddleware);
 
 export function start(adapter: CrmAdapter): Server {
 	const controller: Controller = new Controller(adapter);
