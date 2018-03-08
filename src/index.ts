@@ -1,3 +1,4 @@
+import * as cors from "cors";
 import * as express from "express";
 import { Server } from "http";
 
@@ -8,6 +9,7 @@ const port: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
+app.use(cors());
 app.use(extractHeaderMiddleware);
 
 export function start(adapter: CrmAdapter): Server {
