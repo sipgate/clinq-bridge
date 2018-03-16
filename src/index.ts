@@ -1,5 +1,5 @@
-import * as cors from "cors";
-import * as express from "express";
+import cors = require("cors");
+import express = require("express");
 import { Server } from "http";
 
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
@@ -16,6 +16,8 @@ export function start(adapter: CrmAdapter): Server {
 	const controller: Controller = new Controller(adapter);
 
 	app.get("/contacts", controller.getContacts);
+	app.get("/oauth2/redirect", controller.oAuth2Redirect);
+	app.get("/oauth2/callback", controller.oAuth2Callback);
 
 	app.use(errorHandlerMiddleware);
 

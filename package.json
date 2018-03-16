@@ -1,6 +1,6 @@
 {
 	"name": "clinq-crm-bridge",
-	"version": "3.2.0",
+	"version": "4.0.0-beta",
 	"description": "CLINQ CRM-Bridge Server",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -23,7 +23,8 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"test": "jest",
-		"build": "yarn lint && yarn test && rimraf dist && tsc",
+		"compile": "tsc",
+		"build": "yarn lint && yarn test && rimraf dist && yarn compile",
 		"lint": "tslint 'src/**/*.ts'",
 		"precommit": "lint-staged",
 		"prepublishOnly": "yarn build"
