@@ -1,11 +1,14 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
+import queryString = require("querystring");
 
-import { Contact, CrmAdapter } from ".";
+import { Contact, CrmAdapter, CrmConfig } from ".";
 import contactsSchema from "../schemas/contacts";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://app.sipgate.com/w0/crm/oauth2";
+
+const crmOAuthIdentifier: string = process.env.CRM_OAUTH_IDENTIFIER || "unknown";
 
 export class Controller {
 	private adapter: CrmAdapter;
@@ -21,17 +24,10 @@ export class Controller {
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
 	}
 
-	public async getContacts(
-		req: Request,
-		res: Response,
-		next: NextFunction
-	): Promise<void> {
+	public async getContacts(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const contacts: Contact[] = await this.adapter.getContacts(req.crmConfig);
-			const valid: boolean | Ajv.Thenable<boolean> = this.ajv.validate(
-				contactsSchema,
-				contacts
-			);
+			const valid: boolean | Ajv.Thenable<boolean> = this.ajv.validate(contactsSchema, contacts);
 			if (!valid) {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");
 			}
@@ -41,11 +37,7 @@ export class Controller {
 		}
 	}
 
-	public async oAuth2Redirect(
-		req: Request,
-		res: Response,
-		next: NextFunction
-	): Promise<void> {
+	public async oAuth2Redirect(req: Request, res: Response, next: NextFunction): Promise<void> {
 		if (!this.adapter.getOAuth2RedirectUrl) {
 			res.status(501).send();
 			return;
@@ -58,20 +50,16 @@ export class Controller {
 		}
 	}
 
-	public async oAuth2Callback(
-		req: Request,
-		res: Response,
-		next: NextFunction
-	): Promise<void> {
+	public async oAuth2Callback(req: Request, res: Response, next: NextFunction): Promise<void> {
 		if (!this.adapter.handleOAuth2Callback) {
 			res.status(501).send();
 			return;
 		}
 		try {
-			const accessToken: string = await this.adapter.handleOAuth2Callback(req);
-			res.redirect(
-				`${APP_WEB_URL}/${this.adapter.crmIdentifier}?token=${accessToken}`
-			);
+			const { apiKey: key, apiUrl: url }: CrmConfig = await this.adapter.handleOAuth2Callback(req);
+			const query: string = queryString.stringify({ key, url });
+			const redirectUrl: string = `${APP_WEB_URL}/${crmOAuthIdentifier}?${query}`;
+			res.redirect(redirectUrl);
 		} catch (error) {
 			next(error);
 		}
