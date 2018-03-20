@@ -38,11 +38,10 @@ export class Controller {
 	}
 
 	public async oAuth2Redirect(req: Request, res: Response, next: NextFunction): Promise<void> {
-		if (!this.adapter.getOAuth2RedirectUrl) {
-			res.status(501).send();
-			return;
-		}
 		try {
+			if (!this.adapter.getOAuth2RedirectUrl) {
+				throw new ServerError(501, "OAuth flow not implemented.");
+			}
 			const redirectUrl: string = await this.adapter.getOAuth2RedirectUrl();
 			res.redirect(redirectUrl);
 		} catch (error) {
@@ -51,11 +50,10 @@ export class Controller {
 	}
 
 	public async oAuth2Callback(req: Request, res: Response, next: NextFunction): Promise<void> {
-		if (!this.adapter.handleOAuth2Callback) {
-			res.status(501).send();
-			return;
-		}
 		try {
+			if (!this.adapter.handleOAuth2Callback) {
+				throw new ServerError(501, "OAuth flow not implemented.");
+			}
 			const { apiKey: key, apiUrl: url }: CrmConfig = await this.adapter.handleOAuth2Callback(req);
 			const query: string = queryString.stringify({ key, url });
 			const redirectUrl: string = `${APP_WEB_URL}/${crmOAuthIdentifier}?${query}`;
