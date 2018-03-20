@@ -6,7 +6,7 @@ import { Contact, CrmAdapter, CrmConfig } from ".";
 import contactsSchema from "../schemas/contacts";
 import { ServerError } from "./server-error.model";
 
-const APP_WEB_URL: string = "https://app.sipgate.com/w0/crm/oauth2";
+const APP_WEB_URL: string = "https://app.sipgate.com/crm/oauth2";
 
 const crmOAuthIdentifier: string = process.env.CRM_OAUTH_IDENTIFIER || "unknown";
 
