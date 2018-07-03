@@ -1,4 +1,4 @@
-# CLINQ CRM-Bridge Server
+# CLINQ Bridge Library
 
 This is the CLINQ Bridge library for developing integration services.
 It provides a unified way to connect the CLINQ web application to any contact provider.
