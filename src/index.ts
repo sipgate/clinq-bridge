@@ -3,7 +3,7 @@ import express = require("express");
 import { Server } from "http";
 
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
-import { Controller, CrmAdapter } from "./models";
+import { Adapter, Controller } from "./models";
 
 const port: number = Number(process.env.PORT) || 8080;
 
@@ -12,7 +12,7 @@ const app: express.Application = express();
 app.use(cors());
 app.use(extractHeaderMiddleware);
 
-export function start(adapter: CrmAdapter): Server {
+export function start(adapter: Adapter): Server {
 	const controller: Controller = new Controller(adapter);
 
 	app.get("/contacts", controller.getContacts);
@@ -24,4 +24,4 @@ export function start(adapter: CrmAdapter): Server {
 	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
-export { CrmAdapter, CrmConfig, Contact } from "./models";
+export { Adapter, Config, Contact } from "./models";

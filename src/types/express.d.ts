@@ -1,9 +1,9 @@
-import { CrmConfig } from "../models";
+import { Config } from "../models";
 
 declare global {
 	namespace Express {
 		export interface Request {
-			crmConfig: CrmConfig;
+			config: Config;
 		}
 	}
 }

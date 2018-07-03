@@ -1,11 +1,11 @@
 {
-	"name": "clinq-crm-bridge",
-	"version": "4.2.1",
-	"description": "CLINQ CRM-Bridge Server",
+	"name": "@clinq/bridge",
+	"version": "0.1.0",
+	"description": "CLINQ Bridge Library",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": ["dist"],
-	"repository": "github:sipgate/clinq-crm-bridge",
+	"repository": "github:sipgate/clinq-bridge",
 	"contributors": [
 		{
 			"name": "Benjamin Kluck",
@@ -17,7 +17,7 @@
 		}
 	],
 	"bugs": {
-		"url": "https://github.com/sipgate/clinq-crm-bridge/issues"
+		"url": "https://github.com/sipgate/clinq-bridge/issues"
 	},
 	"keywords": ["clinq", "crm", "express", "library"],
 	"license": "Apache-2.0",

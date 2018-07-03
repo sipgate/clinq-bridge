@@ -1,11 +1,6 @@
-import {
-	createRequest,
-	createResponse,
-	MockRequest,
-	MockResponse
-} from "node-mocks-http";
+import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
 
-import { Contact, Controller, CrmAdapter, ServerError } from ".";
+import { Adapter, Contact, Controller, ServerError } from ".";
 
 const contactsMock: Contact[] = [
 	{
@@ -34,7 +29,6 @@ describe("Controller", () => {
 
 	it("should handle contacts", async () => {
 		const controller: Controller = new Controller({
-			crmIdentifier: "test",
 			getContacts: () => Promise.resolve(contactsMock)
 		});
 
@@ -48,7 +42,6 @@ describe("Controller", () => {
 
 	it("should handle an error when retrieving contacts", async () => {
 		const controller: Controller = new Controller({
-			crmIdentifier: "test",
 			getContacts: () => Promise.reject(ERROR_MESSAGE)
 		});
 
@@ -61,7 +54,6 @@ describe("Controller", () => {
 		const contact: Contact = { ...contactsMock[0] };
 		delete contact.name;
 		const controller: Controller = new Controller({
-			crmIdentifier: "test",
 			getContacts: () => Promise.resolve([contact])
 		});
 

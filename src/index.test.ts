@@ -1,9 +1,9 @@
 import { Server } from "http";
 
 import { start } from "./";
-import { Contact, CrmAdapter } from "./models";
+import { Adapter, Contact } from "./models";
 
-const testImplementation: CrmAdapter = {
+const testImplementation: Adapter = {
 	getContacts(): Promise<Contact[]> {
 		return Promise.resolve([
 			{

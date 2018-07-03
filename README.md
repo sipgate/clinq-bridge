@@ -1,27 +1,27 @@
 # CLINQ CRM-Bridge Server
 
-This is the CLINQ CRM-Bridge Server.
-It provides a unified way to connect the CLINQ browser extension to any CRM software.
+This is the CLINQ Bridge library for developing integration services.
+It provides a unified way to connect the CLINQ web application to any contact provider.
 
 ## Bootstrapping a new bridge
 
-If you want to bootstrap a new CRM-Bridge you can use one of these repositories:
+If you want to bootstrap a new CLINQ Bridge you can use one of these repositories:
 
-* JavaScript: [clinq-crm-bridge-boilerplate](https://github.com/sipgate/clinq-crm-bridge-boilerplate)
-* TypeScript: [clinq-crm-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-crm-bridge-boilerplate-typescript)
+* JavaScript: [clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
+* TypeScript: [clinq-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-bridge-boilerplate-typescript)
 
 ## Installation
 
 ```shell
-npm install --save clinq-crm-bridge
+npm install --save @clinq/bridge
 # or
-yarn add clinq-crm-bridge
+yarn add @clinq/bridge
 ```
 
 ## Quick Start
 
 ```js
-const bridge = require("clinq-crm-bridge");
+const bridge = require("@clinq/bridge");
 
 const adapter = {
 	getContacts: async ({ apiKey, apiUrl }) => {

@@ -2,20 +2,20 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import queryString = require("querystring");
 
-import { Contact, CrmAdapter, CrmConfig } from ".";
+import { Adapter, Config, Contact } from ".";
 import contactsSchema from "../schemas/contacts";
 import { ServerError } from "./server-error.model";
 
-const APP_WEB_URL: string = "https://app.sipgate.com/crm/oauth2";
+const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations/oauth2";
 
-const crmOAuthIdentifier: string = process.env.CRM_OAUTH_IDENTIFIER || "unknown";
+const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
 
 export class Controller {
-	private adapter: CrmAdapter;
+	private adapter: Adapter;
 	private ajv: Ajv.Ajv;
 	private contactsValidator: Ajv.ValidateFunction;
 
-	constructor(adapter: CrmAdapter) {
+	constructor(adapter: Adapter) {
 		this.adapter = adapter;
 		this.ajv = new Ajv();
 
@@ -26,7 +26,7 @@ export class Controller {
 
 	public async getContacts(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const contacts: Contact[] = await this.adapter.getContacts(req.crmConfig);
+			const contacts: Contact[] = await this.adapter.getContacts(req.config);
 			const valid: boolean | Ajv.Thenable<boolean> = this.ajv.validate(contactsSchema, contacts);
 			if (!valid) {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");
@@ -54,9 +54,9 @@ export class Controller {
 			if (!this.adapter.handleOAuth2Callback) {
 				throw new ServerError(501, "OAuth flow not implemented.");
 			}
-			const { apiKey: key, apiUrl: url }: CrmConfig = await this.adapter.handleOAuth2Callback(req);
+			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
 			const query: string = queryString.stringify({ key, url });
-			const redirectUrl: string = `${APP_WEB_URL}/${crmOAuthIdentifier}?${query}`;
+			const redirectUrl: string = `${APP_WEB_URL}/${oAuthIdentifier}?${query}`;
 			res.redirect(redirectUrl);
 		} catch (error) {
 			next(error);
