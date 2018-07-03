@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
 
 import { Adapter, Contact, Controller, ServerError } from ".";
@@ -17,8 +18,8 @@ const contactsMock: Contact[] = [
 const ERROR_MESSAGE: string = "Error!";
 
 describe("Controller", () => {
-	let request: MockRequest;
-	let response: MockResponse;
+	let request: MockRequest<Request>;
+	let response: MockResponse<Response>;
 	let next: jest.Mock;
 
 	beforeEach(() => {

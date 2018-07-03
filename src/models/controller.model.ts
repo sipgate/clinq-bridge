@@ -27,7 +27,7 @@ export class Controller {
 	public async getContacts(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			const contacts: Contact[] = await this.adapter.getContacts(req.config);
-			const valid: boolean | Ajv.Thenable<boolean> = this.ajv.validate(contactsSchema, contacts);
+			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, contacts);
 			if (!valid) {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");
 			}
