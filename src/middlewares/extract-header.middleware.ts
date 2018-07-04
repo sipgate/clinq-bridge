@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from "express";
-import { ServerError } from "../models";
+import { NextFunction, Response } from "express";
+import { BridgeRequest } from "../models";
 
-export function extractHeaderMiddleware(req: Request, res: Response, next: NextFunction): void {
+export function extractHeaderMiddleware(req: BridgeRequest, res: Response, next: NextFunction): void {
 	const key: string = req.get("x-provider-key");
 	const url: string = req.get("x-provider-url");
 
-	req.config = {
+	req.providerConfig = {
 		apiKey: key,
 		apiUrl: url
 	};

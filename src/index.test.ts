@@ -1,6 +1,6 @@
 import { Server } from "http";
 
-import { start } from "./";
+import { start } from ".";
 import { Adapter, Contact } from "./models";
 
 const testImplementation: Adapter = {

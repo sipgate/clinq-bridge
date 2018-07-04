@@ -1,7 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
 
-import { Adapter, Contact, Controller, ServerError } from ".";
+import { Contact, Controller, ServerError } from ".";
+import { BridgeRequest } from "./bridge-request.model";
 
 const contactsMock: Contact[] = [
 	{
@@ -18,7 +19,7 @@ const contactsMock: Contact[] = [
 const ERROR_MESSAGE: string = "Error!";
 
 describe("Controller", () => {
-	let request: MockRequest<Request>;
+	let request: MockRequest<BridgeRequest>;
 	let response: MockResponse<Response>;
 	let next: jest.Mock;
 

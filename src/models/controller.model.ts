@@ -4,6 +4,7 @@ import queryString = require("querystring");
 
 import { Adapter, Config, Contact } from ".";
 import contactsSchema from "../schemas/contacts";
+import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations/oauth2";
@@ -13,7 +14,6 @@ const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
 export class Controller {
 	private adapter: Adapter;
 	private ajv: Ajv.Ajv;
-	private contactsValidator: Ajv.ValidateFunction;
 
 	constructor(adapter: Adapter) {
 		this.adapter = adapter;
@@ -24,9 +24,9 @@ export class Controller {
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
 	}
 
-	public async getContacts(req: Request, res: Response, next: NextFunction): Promise<void> {
+	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
-			const contacts: Contact[] = await this.adapter.getContacts(req.config);
+			const contacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, contacts);
 			if (!valid) {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");

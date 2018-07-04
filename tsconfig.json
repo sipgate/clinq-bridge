@@ -4,7 +4,9 @@
 		"module": "commonjs",
 		"outDir": "dist",
 		"sourceMap": true,
-		"declaration": true
+		"declaration": true,
+		"noImplicitAny": true,
+		"noUnusedLocals": true
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "src/**/*.test.ts"]
