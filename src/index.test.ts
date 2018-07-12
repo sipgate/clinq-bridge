@@ -7,7 +7,10 @@ const testImplementation: Adapter = {
 	getContacts(): Promise<Contact[]> {
 		return Promise.resolve([
 			{
-				name: "Max Mustermann",
+				company: "Rocket Science Inc.",
+				email: "walter@example.com",
+				id: "abc123",
+				name: "Walter Geoffrey",
 				phoneNumbers: [
 					{
 						label: "Mobile",

@@ -6,6 +6,15 @@ export default {
 	items: {
 		type: "object",
 		properties: {
+			id: {
+				type: "string"
+			},
+			email: {
+				type: "string"
+			},
+			company: {
+				type: "string"
+			},
 			name: {
 				type: "string"
 			},

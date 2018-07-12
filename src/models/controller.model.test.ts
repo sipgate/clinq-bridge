@@ -19,6 +19,18 @@ const contactsMock: Contact[] = [
 	}
 ];
 
+const contactsMinimumMock: Contact[] = [
+	{
+		name: "Walter Geoffrey",
+		phoneNumbers: [
+			{
+				label: "Mobile",
+				phoneNumber: "+4915799912345"
+			}
+		]
+	}
+];
+
 const ERROR_MESSAGE: string = "Error!";
 
 describe("Controller", () => {
@@ -43,6 +55,34 @@ describe("Controller", () => {
 
 		expect(next).not.toBeCalled();
 		expect(data).toBe(contactsMock);
+	});
+
+	it("should handle contacts with minimum fields", async () => {
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve(contactsMinimumMock)
+		});
+
+		await controller.getContacts(request, response, next);
+
+		const data: Contact[] = response._getData();
+
+		expect(next).not.toBeCalled();
+		expect(data).toBe(contactsMinimumMock);
+	});
+
+	it("should handle invalid contacts with missing fields", async () => {
+		const contactsBrokenMock: Contact[] = [...contactsMinimumMock];
+		delete contactsBrokenMock[0].name;
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve(contactsBrokenMock)
+		});
+
+		await controller.getContacts(request, response, next);
+
+		const error: ServerError = next.mock.calls[0][0];
+
+		expect(next).toBeCalled();
+		expect(error.status).toEqual(400);
 	});
 
 	it("should handle an error when retrieving contacts", async () => {

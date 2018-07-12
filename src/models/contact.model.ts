@@ -4,9 +4,9 @@ export interface PhoneNumber {
 }
 
 export interface Contact {
-	id: string;
+	id?: string;
 	name: string;
-	email: string;
-	company: string;
+	email?: string;
+	company?: string;
 	phoneNumbers: PhoneNumber[];
 }
