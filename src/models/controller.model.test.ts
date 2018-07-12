@@ -6,11 +6,14 @@ import { BridgeRequest } from "./bridge-request.model";
 
 const contactsMock: Contact[] = [
 	{
-		name: "Max Mustermann",
+		company: "Rocket Science Inc.",
+		email: "walter@example.com",
+		id: "abc123",
+		name: "Walter Geoffrey",
 		phoneNumbers: [
 			{
 				label: "Mobile",
-				phoneNumber: "+4912345678910"
+				phoneNumber: "+4915799912345"
 			}
 		]
 	}

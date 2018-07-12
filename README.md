@@ -7,8 +7,8 @@ It provides a unified way to connect the CLINQ web application to any contact pr
 
 If you want to bootstrap a new CLINQ Bridge you can use one of these repositories:
 
-* JavaScript: [clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
-* TypeScript: [clinq-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-bridge-boilerplate-typescript)
+- JavaScript: [clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
+- TypeScript: [clinq-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-bridge-boilerplate-typescript)
 
 ## Installation
 
@@ -25,10 +25,13 @@ const bridge = require("@clinq/bridge");
 
 const adapter = {
 	getContacts: async ({ apiKey, apiUrl }) => {
-		// TODO: Fetch contacts from CRM using apiKey and apiUrl or throw on error
+		// TODO: Fetch contacts using apiKey and apiUrl or throw on error
 		return [
 			{
-				name: "Benjamin Kluck",
+				id: "abc123",
+				name: "Walter Geoffrey",
+				company: "Rocket Science Inc.",
+				email: "walter@example.com",
 				phoneNumbers: [
 					{
 						label: "Mobile",
