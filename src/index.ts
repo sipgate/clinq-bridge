@@ -9,7 +9,7 @@ const port: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
 app.use(extractHeaderMiddleware);
 
 export function start(adapter: Adapter): Server {

@@ -2,12 +2,14 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import queryString = require("querystring");
 
+import { CookieOptions } from "express-serve-static-core";
 import { Adapter, Config, Contact } from ".";
 import contactsSchema from "../schemas/contacts";
 import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations/oauth2";
+const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
 
@@ -43,7 +45,12 @@ export class Controller {
 				throw new ServerError(501, "OAuth flow not implemented.");
 			}
 			const redirectUrl: string = await this.adapter.getOAuth2RedirectUrl();
-			res.redirect(redirectUrl);
+			const token: string = req.get("Authorization");
+			if (typeof token === "string") {
+				const options: CookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === "production" };
+				res.cookie(SESSION_COOKIE_KEY, token, options);
+			}
+			res.send({ redirectUrl });
 		} catch (error) {
 			next(error);
 		}
