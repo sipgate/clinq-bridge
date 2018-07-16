@@ -1,17 +1,23 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
-import queryString = require("querystring");
-
 import { CookieOptions } from "express-serve-static-core";
 import { Adapter, Config, Contact } from ".";
 import contactsSchema from "../schemas/contacts";
 import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 
-const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations/oauth2";
+import queryString = require("querystring");
+import { createIntegration } from "../api";
+
+const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
+
+function buildRedirectUrl(success: boolean = false): string {
+	const query: string = queryString.stringify({ success });
+	return `${APP_WEB_URL}?${query}`;
+}
 
 export class Controller {
 	private adapter: Adapter;
@@ -42,7 +48,7 @@ export class Controller {
 	public async oAuth2Redirect(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			if (!this.adapter.getOAuth2RedirectUrl) {
-				throw new ServerError(501, "OAuth flow not implemented.");
+				throw new ServerError(501, "OAuth2 flow not implemented.");
 			}
 			const redirectUrl: string = await this.adapter.getOAuth2RedirectUrl();
 			const token: string = req.get("Authorization");
@@ -59,14 +65,26 @@ export class Controller {
 	public async oAuth2Callback(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			if (!this.adapter.handleOAuth2Callback) {
-				throw new ServerError(501, "OAuth flow not implemented.");
+				throw new ServerError(501, "OAuth2 flow not implemented.");
 			}
-			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
-			const query: string = queryString.stringify({ key, url });
-			const redirectUrl: string = `${APP_WEB_URL}/${oAuthIdentifier}?${query}`;
-			res.redirect(redirectUrl);
 		} catch (error) {
 			next(error);
+		}
+
+		try {
+			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
+			if (!authorizationHeader) {
+				console.error("Unable to save OAuth2 token, unauthorized request.");
+				res.redirect(buildRedirectUrl());
+			}
+
+			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
+
+			await createIntegration({ crm: oAuthIdentifier, token: key, url }, authorizationHeader);
+			res.redirect(buildRedirectUrl(true));
+		} catch (error) {
+			console.error("Unable to save integration api token. Response:", error.response);
+			res.redirect(buildRedirectUrl());
 		}
 	}
 }
