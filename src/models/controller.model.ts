@@ -7,7 +7,7 @@ import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 
 import queryString = require("querystring");
-import { createIntegration } from "../api";
+import { createIntegration, CreateIntegrationRequest } from "../api";
 
 const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
@@ -74,16 +74,16 @@ export class Controller {
 		try {
 			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
 			if (!authorizationHeader) {
-				console.error("Unable to save OAuth2 token, unauthorized request.");
+				console.error("Unable to save OAuth2 token: Unauthorized.");
 				res.redirect(buildRedirectUrl());
+				return;
 			}
-
 			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
-
-			await createIntegration({ crm: oAuthIdentifier, token: key, url }, authorizationHeader);
+			const integration: CreateIntegrationRequest = { crm: oAuthIdentifier, token: key, url };
+			await createIntegration(integration, authorizationHeader);
 			res.redirect(buildRedirectUrl(true));
 		} catch (error) {
-			console.error("Unable to save integration api token. Cause:", error.message);
+			console.error("Unable to save OAuth2 token. Cause:", error.message);
 			res.redirect(buildRedirectUrl());
 		}
 	}
