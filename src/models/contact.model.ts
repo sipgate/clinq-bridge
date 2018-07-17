@@ -1,12 +1,12 @@
 export interface PhoneNumber {
-	label: string;
+	label: string | null;
 	phoneNumber: string;
 }
 
 export interface Contact {
-	id?: string;
+	id: string;
 	name: string;
-	email?: string;
-	company?: string;
+	email: string | null;
+	company: string | null;
 	phoneNumbers: PhoneNumber[];
 }

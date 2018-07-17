@@ -10,10 +10,10 @@ export default {
 				type: "string"
 			},
 			email: {
-				type: "string"
+				type: ["string", "null"]
 			},
 			company: {
-				type: "string"
+				type: ["string", "null"]
 			},
 			name: {
 				type: "string"
@@ -24,16 +24,16 @@ export default {
 					type: "object",
 					properties: {
 						label: {
-							type: "string"
+							type: ["string", "null"]
 						},
 						phoneNumber: {
 							type: "string"
 						}
 					},
-					required: ["phoneNumber"]
+					required: ["label", "phoneNumber"]
 				}
 			}
 		},
-		required: ["name", "phoneNumbers"]
+		required: ["id", "email", "company", "name", "phoneNumbers"]
 	}
 };

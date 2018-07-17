@@ -21,6 +21,9 @@ const contactsMock: Contact[] = [
 
 const contactsMinimumMock: Contact[] = [
 	{
+		id: "123",
+		email: null,
+		company: null,
 		name: "Walter Geoffrey",
 		phoneNumbers: [
 			{
@@ -93,20 +96,5 @@ describe("Controller", () => {
 		await controller.getContacts(request, response, next);
 
 		expect(next).toBeCalledWith(ERROR_MESSAGE);
-	});
-
-	it("should handle an error when contacts are not valid", async () => {
-		const contact: Contact = { ...contactsMock[0] };
-		delete contact.name;
-		const controller: Controller = new Controller({
-			getContacts: () => Promise.resolve([contact])
-		});
-
-		await controller.getContacts(request, response, next);
-
-		const error: ServerError = next.mock.calls[0][0];
-
-		expect(next).toBeCalled();
-		expect(error.status).toEqual(400);
 	});
 });
