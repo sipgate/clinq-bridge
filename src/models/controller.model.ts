@@ -83,7 +83,7 @@ export class Controller {
 			await createIntegration({ crm: oAuthIdentifier, token: key, url }, authorizationHeader);
 			res.redirect(buildRedirectUrl(true));
 		} catch (error) {
-			console.error("Unable to save integration api token. Response:", error.response);
+			console.error("Unable to save integration api token. Cause:", error.message);
 			res.redirect(buildRedirectUrl());
 		}
 	}
