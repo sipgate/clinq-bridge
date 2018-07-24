@@ -1,6 +1,6 @@
 // tslint:disable
 
-export default {
+export const contactsSchema = {
 	title: "Contacts",
 	type: "array",
 	items: {

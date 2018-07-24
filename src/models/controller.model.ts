@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { CookieOptions } from "express-serve-static-core";
 import { Adapter, Config, Contact } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
-import contactsSchema from "../schemas/contacts";
+import { contactsSchema } from "../schemas";
 import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 

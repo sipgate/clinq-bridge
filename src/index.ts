@@ -26,3 +26,4 @@ export function start(adapter: Adapter): Server {
 }
 
 export { Adapter, Config, Contact, PhoneNumber } from "./models";
+export { unauthorized } from "./util";
