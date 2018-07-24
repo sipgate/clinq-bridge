@@ -2,22 +2,15 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { CookieOptions } from "express-serve-static-core";
 import { Adapter, Config, Contact } from ".";
+import { createIntegration, CreateIntegrationRequest } from "../api";
 import contactsSchema from "../schemas/contacts";
 import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
-
-import queryString = require("querystring");
-import { createIntegration, CreateIntegrationRequest } from "../api";
 
 const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
-
-function buildRedirectUrl(success: boolean = false): string {
-	const query: string = queryString.stringify({ success });
-	return `${APP_WEB_URL}?${query}`;
-}
 
 export class Controller {
 	private adapter: Adapter;
@@ -75,16 +68,16 @@ export class Controller {
 			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
 			if (!authorizationHeader) {
 				console.error("Unable to save OAuth2 token: Unauthorized.");
-				res.redirect(buildRedirectUrl());
+				res.redirect(APP_WEB_URL);
 				return;
 			}
 			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
 			const integration: CreateIntegrationRequest = { crm: oAuthIdentifier, token: key, url };
 			await createIntegration(integration, authorizationHeader);
-			res.redirect(buildRedirectUrl(true));
+			res.redirect(APP_WEB_URL);
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);
-			res.redirect(buildRedirectUrl());
+			res.redirect(APP_WEB_URL);
 		}
 	}
 }
