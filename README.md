@@ -22,15 +22,15 @@ yarn add @clinq/bridge
 
 CLINQ accepts contacts in this format:
 
-```js
+```json
 {
   id: "abc123",
   name: "Walter Geoffrey",
-  company: "Rocket Science Inc.",
-  email: "walter@example.com",
+  company: "Rocket Science Inc.", // or null
+  email: "walter@example.com", // or null
   phoneNumbers: [
     {
-      label: "Mobile",
+      label: "Mobile", // or null
       phoneNumber: "+4915799912345"
     }
   ]
