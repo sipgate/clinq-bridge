@@ -20,26 +20,42 @@ yarn add @clinq/bridge
 
 ## Quick Start
 
+CLINQ accepts contacts in this format:
+
+```js
+{
+  id: "abc123",
+  name: "Walter Geoffrey",
+  company: "Rocket Science Inc.",
+  email: "walter@example.com",
+  phoneNumbers: [
+    {
+      label: "Mobile",
+      phoneNumber: "+4915799912345"
+    }
+  ]
+}
+```
+
+The minimum adapter implements the `getContacts` method:
+
 ```js
 const bridge = require("@clinq/bridge");
 
 const adapter = {
 	getContacts: async ({ apiKey, apiUrl }) => {
-		// TODO: Fetch contacts using apiKey and apiUrl or throw on error
-		return [
-			{
-				id: "abc123",
-				name: "Walter Geoffrey",
-				company: "Rocket Science Inc.",
-				email: "walter@example.com",
-				phoneNumbers: [
-					{
-						label: "Mobile",
-						phoneNumber: "+4915799912345"
-					}
-				]
-			}
-		];
+		// Fetch contacts using apiKey and apiUrl or throw on error
+		const response = await fetch(`${apiUrl}/api/contacts`, {
+			headers: { Authorization: `Bearer ${apiKey}` }
+		});
+		if (response.status === 401) {
+			bridge.unauthorized();
+		}
+		if (response.ok) {
+			const contacts = await response.json();
+			// TODO: Convert contact to the structure above
+			return contacts;
+		}
 	}
 };
 
