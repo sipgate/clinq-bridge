@@ -41,6 +41,7 @@ The minimum adapter implements the `getContacts` method:
 
 ```js
 const bridge = require("@clinq/bridge");
+const fetch = require('node-fetch');
 
 const adapter = {
   getContacts: async ({ apiKey, apiUrl }) => {
