@@ -37,7 +37,7 @@
 		"prepublishOnly": "yarn build"
 	},
 	"lint-staged": {
-		"*.{ts,json,md}": [
+		"*.{ts,json}": [
 			"prettier --write",
 			"git add"
 		]

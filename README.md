@@ -43,20 +43,22 @@ The minimum adapter implements the `getContacts` method:
 const bridge = require("@clinq/bridge");
 
 const adapter = {
-	getContacts: async ({ apiKey, apiUrl }) => {
-		// Fetch contacts using apiKey and apiUrl or throw on error
-		const response = await fetch(`${apiUrl}/api/contacts`, {
-			headers: { Authorization: `Bearer ${apiKey}` }
-		});
-		if (response.status === 401) {
-			bridge.unauthorized();
-		}
-		if (response.ok) {
-			const contacts = await response.json();
-			// TODO: Convert contact to the structure above
-			return contacts;
-		}
-	}
+  getContacts: async ({ apiKey, apiUrl }) => {
+    // Fetch contacts using apiKey and apiUrl or throw on error
+    const response = await fetch(`${apiUrl}/api/contacts`, {
+      headers: { Authorization: `Bearer ${apiKey}` }
+    });
+    if (response.status === 401) {
+      bridge.unauthorized();
+    }
+    if (response.ok) {
+      const contacts = await response.json();
+      // TODO: Convert contact to the structure above
+      return contacts;
+    } else {
+      throw new Error("Could not fetch contacts :(");
+    }
+  }
 };
 
 bridge.start(adapter);
