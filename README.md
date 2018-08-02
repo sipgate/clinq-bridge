@@ -22,7 +22,7 @@ yarn add @clinq/bridge
 
 CLINQ accepts contacts in this format:
 
-```json
+```js
 {
   id: "abc123",
   name: "Walter Geoffrey",
