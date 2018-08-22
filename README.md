@@ -27,6 +27,8 @@ CLINQ accepts contacts in this format:
   id: "abc123",
   name: "Walter Geoffrey",
   company: "Rocket Science Inc.", // or null
+  contactUrl: "http://myapp.com/contacts/abc123", // or null
+  avatarUrl: "http://myapp.com/avatar/abc123.png", // or null
   email: "walter@example.com", // or null
   phoneNumbers: [
     {

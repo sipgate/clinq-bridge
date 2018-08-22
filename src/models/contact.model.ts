@@ -8,5 +8,7 @@ export interface Contact {
 	name: string;
 	email: string | null;
 	company: string | null;
+	contactUrl: string | null;
+	avatarUrl: string | null;
 	phoneNumbers: PhoneNumber[];
 }

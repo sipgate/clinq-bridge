@@ -11,6 +11,8 @@ const testImplementation: Adapter = {
 				email: "walter@example.com",
 				id: "abc123",
 				name: "Walter Geoffrey",
+				contactUrl: "http://myapp.com/contacts/abc123",
+				avatarUrl: "http://myapp.com/avatar/abc123.png",
 				phoneNumbers: [
 					{
 						label: "Mobile",
