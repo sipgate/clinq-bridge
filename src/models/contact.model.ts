@@ -5,7 +5,7 @@ export interface PhoneNumber {
 
 export interface Contact {
 	id: string;
-	name: string;
+	name: string | null;
 	email: string | null;
 	company: string | null;
 	contactUrl: string | null;

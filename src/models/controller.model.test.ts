@@ -26,12 +26,12 @@ const contactsMinimumMock: Contact[] = [
 		id: "123",
 		email: null,
 		company: null,
-		name: "Walter Geoffrey",
-		contactUrl: "http://myapp.com/contacts/abc123",
-		avatarUrl: "http://myapp.com/avatar/abc123.png",
+		name: null,
+		contactUrl: null,
+		avatarUrl: null,
 		phoneNumbers: [
 			{
-				label: "Mobile",
+				label: null,
 				phoneNumber: "+4915799912345"
 			}
 		]

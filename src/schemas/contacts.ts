@@ -22,10 +22,11 @@ export const contactsSchema = {
 				type: ["string", "null"]
 			},
 			name: {
-				type: "string"
+				type: ["string", "null"]
 			},
 			phoneNumbers: {
 				type: "array",
+				minItems: 1,
 				items: {
 					type: "object",
 					properties: {
