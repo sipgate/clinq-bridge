@@ -21,6 +21,7 @@ export class Controller {
 		this.ajv = new Ajv();
 
 		this.getContacts = this.getContacts.bind(this);
+		this.getHealth = this.getHealth.bind(this);
 		this.oAuth2Redirect = this.oAuth2Redirect.bind(this);
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
 	}
@@ -33,6 +34,17 @@ export class Controller {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");
 			}
 			res.send(contacts);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async getHealth(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (this.adapter.getHealth) {
+				await this.adapter.getHealth();
+			}
+			res.sendStatus(200);
 		} catch (error) {
 			next(error);
 		}

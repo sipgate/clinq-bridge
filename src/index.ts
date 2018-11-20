@@ -17,6 +17,7 @@ export function start(adapter: Adapter): Server {
 	const controller: Controller = new Controller(adapter);
 
 	app.get("/contacts", controller.getContacts);
+	app.get("/health", controller.getHealth);
 	app.get("/oauth2/redirect", controller.oAuth2Redirect);
 	app.get("/oauth2/callback", controller.oAuth2Callback);
 
