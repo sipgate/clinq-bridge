@@ -46,7 +46,7 @@ export class Controller {
 			}
 			res.sendStatus(200);
 		} catch (error) {
-			next(error);
+			next(error || "Internal Server Error");
 		}
 	}
 
