@@ -40,7 +40,7 @@ const contactsMinimumMock: Contact[] = [
 
 const ERROR_MESSAGE: string = "Error!";
 
-describe("Controller", () => {
+describe("getContacts", () => {
 	let request: MockRequest<BridgeRequest>;
 	let response: MockResponse<Response>;
 	let next: jest.Mock;
@@ -100,5 +100,54 @@ describe("Controller", () => {
 		await controller.getContacts(request, response, next);
 
 		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+});
+
+describe("getHealth", () => {
+	let request: MockRequest<BridgeRequest>;
+	let response: MockResponse<Response>;
+	let next: jest.Mock;
+
+	beforeEach(() => {
+		request = createRequest();
+		response = createResponse();
+		next = jest.fn();
+	});
+
+	it("should implement a default function", async () => {
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve(contactsMock)
+		});
+
+		await controller.getHealth(request, response, next);
+
+		expect(next).not.toBeCalled();
+		expect(response.statusCode).toBe(200);
+	});
+
+	it("should accept a custom function", async () => {
+		const getHealthMock: () => Promise<void> = jest.fn();
+
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.resolve(contactsMock),
+			getHealth: getHealthMock
+		});
+
+		await controller.getHealth(request, response, next);
+
+		expect(getHealthMock).toBeCalled();
+		expect(next).not.toBeCalled();
+		expect(response.statusCode).toBe(200);
+	});
+
+	it("should handle an error", async () => {
+		const controller: Controller = new Controller({
+			getContacts: () => Promise.reject(),
+			getHealth: () => Promise.reject()
+		});
+
+		await controller.getHealth(request, response, next);
+
+		expect(next).toBeCalled();
 	});
 });
