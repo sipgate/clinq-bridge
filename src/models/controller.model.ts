@@ -7,7 +7,7 @@ import { contactsSchema } from "../schemas";
 import { BridgeRequest } from "./bridge-request.model";
 import { ServerError } from "./server-error.model";
 
-const APP_WEB_URL: string = "https://app.clinq.com/settings/integrations";
+const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
