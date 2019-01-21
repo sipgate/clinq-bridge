@@ -1,10 +1,11 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { CookieOptions } from "express-serve-static-core";
-import { Adapter, Config, Contact } from ".";
+import { Adapter, Config, Contact, ContactTemplate } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
 import { BridgeRequest } from "./bridge-request.model";
+import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
@@ -21,6 +22,9 @@ export class Controller {
 		this.ajv = new Ajv();
 
 		this.getContacts = this.getContacts.bind(this);
+		this.createContact = this.createContact.bind(this);
+		this.updateContact = this.updateContact.bind(this);
+		this.deleteContact = this.deleteContact.bind(this);
 		this.getHealth = this.getHealth.bind(this);
 		this.oAuth2Redirect = this.oAuth2Redirect.bind(this);
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
@@ -34,6 +38,54 @@ export class Controller {
 				throw new ServerError(400, "Invalid contacts provided by adapter.");
 			}
 			res.send(contacts);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async createContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (!this.adapter.createContact) {
+				throw new ServerError(501, "Creating contacts is not implemented.");
+			}
+			const contact: Contact = await this.adapter.createContact(req.providerConfig, req.body as ContactTemplate);
+			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
+			if (!valid) {
+				throw new ServerError(400, "Invalid contact provided by adapter.");
+			}
+			res.send(contact);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async updateContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (!this.adapter.updateContact) {
+				throw new ServerError(501, "Updating contacts is not implemented.");
+			}
+			const contact: Contact = await this.adapter.updateContact(
+				req.providerConfig,
+				req.params.id,
+				req.body as ContactUpdate
+			);
+			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
+			if (!valid) {
+				throw new ServerError(400, "Invalid contact provided by adapter.");
+			}
+			res.send(contact);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async deleteContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (!this.adapter.deleteContact) {
+				throw new ServerError(501, "Deleting contacts is not implemented.");
+			}
+			await this.adapter.deleteContact(req.providerConfig, req.params.id);
+			res.status(200).send();
 		} catch (error) {
 			next(error);
 		}

@@ -1,6 +1,6 @@
 {
 	"name": "@clinq/bridge",
-	"version": "5.1.2",
+	"version": "6.0.0",
 	"description": "CLINQ Bridge Library",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -55,6 +55,7 @@
 		]
 	},
 	"devDependencies": {
+		"@types/body-parser": "^1.17.0",
 		"@types/cookie-parser": "^1.4.1",
 		"@types/cors": "^2.8.4",
 		"@types/express": "^4.11.1",
@@ -74,6 +75,7 @@
 	"dependencies": {
 		"ajv": "^6.1.1",
 		"axios": "^0.18.0",
+		"body-parser": "^1.18.3",
 		"cookie-parser": "^1.4.3",
 		"cors": "^2.8.4",
 		"express": "^4.16.2"

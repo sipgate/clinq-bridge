@@ -3,12 +3,21 @@ export interface PhoneNumber {
 	phoneNumber: string;
 }
 
-export interface Contact {
-	id: string;
+export interface ContactTemplate {
 	name: string | null;
+	firstName: string | null;
+	lastName: string | null;
 	email: string | null;
 	company: string | null;
+	phoneNumbers: PhoneNumber[];
+}
+
+export interface Contact extends ContactTemplate {
+	id: string;
 	contactUrl: string | null;
 	avatarUrl: string | null;
-	phoneNumbers: PhoneNumber[];
+}
+
+export interface ContactUpdate extends ContactTemplate {
+	id: string;
 }

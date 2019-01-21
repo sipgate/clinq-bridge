@@ -1,5 +1,5 @@
 import { ServerError } from "../models";
 
-export function unauthorized(): void {
-	throw new ServerError(401, "Unauthorized");
+export function unauthorized(): ServerError {
+	return new ServerError(401, "Unauthorized");
 }

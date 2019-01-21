@@ -24,6 +24,12 @@ export const contactsSchema = {
 			name: {
 				type: ["string", "null"]
 			},
+			firstName: {
+				type: ["string", "null"]
+			},
+			lastName: {
+				type: ["string", "null"]
+			},
 			phoneNumbers: {
 				type: "array",
 				minItems: 1,
