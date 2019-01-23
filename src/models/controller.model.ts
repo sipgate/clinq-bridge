@@ -11,7 +11,7 @@ import { ServerError } from "./server-error.model";
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
-const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "unknown";
+const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
 export class Controller {
 	private adapter: Adapter;
