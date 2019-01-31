@@ -25,14 +25,17 @@ CLINQ accepts contacts in this format:
 ```js
 {
   id: "abc123",
-  name: "Walter Geoffrey",
+  // Provide either the full name of first and last name, not both
+  name: null, // or null
+  firstName: "Walter", // or null
+  lastName: "Geoffrey", // or null
   organization: "Rocket Science Inc.", // or null
   contactUrl: "http://myapp.com/contacts/abc123", // or null
   avatarUrl: "http://myapp.com/avatar/abc123.png", // or null
   email: "walter@example.com", // or null
   phoneNumbers: [
     {
-      label: "Mobile", // or null
+      label: "MOBILE", // or "WORK" or "HOME"
       phoneNumber: "+4915799912345"
     }
   ]
