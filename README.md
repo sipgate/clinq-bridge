@@ -25,7 +25,7 @@ CLINQ accepts contacts in this format:
 ```js
 {
   id: "abc123",
-  // Provide either the full name of first and last name, not both
+  // Provide either the full name or first and last name, not both
   name: null, // or null
   firstName: "Walter", // or null
   lastName: "Geoffrey", // or null
