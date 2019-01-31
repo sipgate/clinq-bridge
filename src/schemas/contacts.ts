@@ -37,7 +37,7 @@ export const contactsSchema = {
 					type: "object",
 					properties: {
 						label: {
-							type: ["string", "null"]
+							type: "string"
 						},
 						phoneNumber: {
 							type: "string"
