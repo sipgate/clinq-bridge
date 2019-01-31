@@ -1,6 +1,6 @@
-# CLINQ Bridge Library
+# CLINQ Bridge Framework
 
-This is the CLINQ Bridge library for developing integration services.
+This is the CLINQ Bridge framework for developing integration services.
 It provides a unified way to connect the CLINQ web application to any contact provider.
 
 ## Bootstrapping a new bridge
@@ -26,7 +26,7 @@ CLINQ accepts contacts in this format:
 {
   id: "abc123",
   name: "Walter Geoffrey",
-  company: "Rocket Science Inc.", // or null
+  organization: "Rocket Science Inc.", // or null
   contactUrl: "http://myapp.com/contacts/abc123", // or null
   avatarUrl: "http://myapp.com/avatar/abc123.png", // or null
   email: "walter@example.com", // or null

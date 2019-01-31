@@ -1,5 +1,11 @@
+export enum PhoneNumberLabel {
+	WORK = "WORK",
+	MOBILE = "MOBILE",
+	HOME = "HOME"
+}
+
 export interface PhoneNumber {
-	label: string | null;
+	label: PhoneNumberLabel;
 	phoneNumber: string;
 }
 
@@ -8,7 +14,7 @@ export interface ContactTemplate {
 	firstName: string | null;
 	lastName: string | null;
 	email: string | null;
-	company: string | null;
+	organization: string | null;
 	phoneNumbers: PhoneNumber[];
 }
 

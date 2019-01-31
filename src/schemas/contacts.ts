@@ -12,7 +12,7 @@ export const contactsSchema = {
 			email: {
 				type: ["string", "null"]
 			},
-			company: {
+			organization: {
 				type: ["string", "null"]
 			},
 			contactUrl: {
@@ -47,6 +47,16 @@ export const contactsSchema = {
 				}
 			}
 		},
-		required: ["id", "email", "company", "contactUrl", "avatarUrl", "name", "phoneNumbers"]
+		required: [
+			"id",
+			"name",
+			"firstName",
+			"lastName",
+			"email",
+			"organization",
+			"contactUrl",
+			"avatarUrl",
+			"phoneNumbers"
+		]
 	}
 };

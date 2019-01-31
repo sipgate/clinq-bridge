@@ -1,21 +1,23 @@
 import { Server } from "http";
 
 import { start } from ".";
-import { Adapter, Contact } from "./models";
+import { Adapter, Contact, PhoneNumberLabel } from "./models";
 
 const testImplementation: Adapter = {
 	getContacts(): Promise<Contact[]> {
 		return Promise.resolve([
 			{
-				company: "Rocket Science Inc.",
 				email: "walter@example.com",
 				id: "abc123",
 				name: "Walter Geoffrey",
+				firstName: null,
+				lastName: null,
+				organization: "Rocket Science Inc.",
 				contactUrl: "http://myapp.com/contacts/abc123",
 				avatarUrl: "http://myapp.com/avatar/abc123.png",
 				phoneNumbers: [
 					{
-						label: "Mobile",
+						label: PhoneNumberLabel.MOBILE,
 						phoneNumber: "+4915799912345"
 					}
 				]
@@ -24,7 +26,7 @@ const testImplementation: Adapter = {
 	}
 };
 
-describe("Library", () => {
+describe("Framework", () => {
 	it("should start the server", async () => {
 		const server: Server = start(testImplementation);
 		expect(server).toBeDefined();

@@ -1,7 +1,7 @@
 {
 	"name": "@clinq/bridge",
-	"version": "6.0.0",
-	"description": "CLINQ Bridge Library",
+	"version": "7.0.0",
+	"description": "CLINQ Bridge Framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
@@ -25,7 +25,7 @@
 		"clinq",
 		"crm",
 		"express",
-		"library"
+		"framework"
 	],
 	"license": "Apache-2.0",
 	"scripts": {

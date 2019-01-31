@@ -3,18 +3,21 @@ import { createRequest, createResponse, MockRequest, MockResponse } from "node-m
 
 import { Contact, Controller, ServerError } from ".";
 import { BridgeRequest } from "./bridge-request.model";
+import { PhoneNumberLabel } from "./contact.model";
 
 const contactsMock: Contact[] = [
 	{
-		company: "Rocket Science Inc.",
-		email: "walter@example.com",
 		id: "abc123",
 		name: "Walter Geoffrey",
+		firstName: null,
+		lastName: null,
+		email: "walter@example.com",
+		organization: "Rocket Science Inc.",
 		contactUrl: "http://myapp.com/contacts/abc123",
 		avatarUrl: "http://myapp.com/avatar/abc123.png",
 		phoneNumbers: [
 			{
-				label: "Mobile",
+				label: PhoneNumberLabel.MOBILE,
 				phoneNumber: "+4915799912345"
 			}
 		]
@@ -25,8 +28,10 @@ const contactsMinimumMock: Contact[] = [
 	{
 		id: "123",
 		email: null,
-		company: null,
 		name: null,
+		firstName: null,
+		lastName: null,
+		organization: null,
 		contactUrl: null,
 		avatarUrl: null,
 		phoneNumbers: [
