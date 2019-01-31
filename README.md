@@ -63,7 +63,7 @@ const adapter = {
       // TODO: Convert contact to the structure above
       return contacts;
     } else {
-      throw new ServerError(500, "Could not fetch contacts ☹️");
+      throw new ServerError(500, "Could not fetch contacts");
     }
   }
 };
