@@ -5,10 +5,9 @@ It provides a unified way to connect the CLINQ web application to any contact pr
 
 ## Bootstrapping a new bridge
 
-If you want to bootstrap a new CLINQ Bridge you can use one of these repositories:
+If you want to bootstrap a new CLINQ Bridge you can use this repository:
 
-- JavaScript: [clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
-- TypeScript: [clinq-bridge-boilerplate-typescript](https://github.com/sipgate/clinq-bridge-boilerplate-typescript)
+[clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
 
 ## Installation
 
