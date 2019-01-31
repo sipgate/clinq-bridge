@@ -36,7 +36,7 @@ const contactsMinimumMock: Contact[] = [
 		avatarUrl: null,
 		phoneNumbers: [
 			{
-				label: null,
+				label: PhoneNumberLabel.WORK,
 				phoneNumber: "+4915799912345"
 			}
 		]
