@@ -70,7 +70,7 @@ describe("getContacts", () => {
 		const data: Contact[] = response._getData();
 
 		expect(next).not.toBeCalled();
-		expect(data).toBe(contactsMock);
+		expect(data).toEqual(contactsMock);
 	});
 
 	it("should handle contacts with minimum fields", async () => {
@@ -86,7 +86,7 @@ describe("getContacts", () => {
 		const data: Contact[] = response._getData();
 
 		expect(next).not.toBeCalled();
-		expect(data).toBe(contactsMinimumMock);
+		expect(data).toEqual(contactsMinimumMock);
 	});
 
 	it("should handle invalid contacts with missing fields", async () => {

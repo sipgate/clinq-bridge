@@ -74,12 +74,14 @@
 		"typescript": "^2.7.2"
 	},
 	"dependencies": {
+		"@types/google-libphonenumber": "^7.4.17",
 		"ajv": "^6.1.1",
 		"axios": "^0.18.0",
 		"body-parser": "^1.18.3",
 		"cookie-parser": "^1.4.3",
 		"cors": "^2.8.4",
 		"express": "^4.16.2",
+		"google-libphonenumber": "^3.2.2",
 		"redis": "^2.8.0"
 	}
 }

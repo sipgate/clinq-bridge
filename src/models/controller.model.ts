@@ -4,6 +4,7 @@ import { CookieOptions } from "express-serve-static-core";
 import { Adapter, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
+import { convertPhonenumberToE164 } from "../util/phone-number-utils";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
@@ -12,6 +13,18 @@ const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
+
+function sanitizeContact(contact: Contact): Contact {
+	const result: Contact = {
+		...contact,
+		phoneNumbers: contact.phoneNumbers.map(phoneNumber => ({
+			...phoneNumber,
+			phoneNumber: convertPhonenumberToE164(phoneNumber.phoneNumber)
+		}))
+	};
+	console.log(sanitizeContact, result);
+	return result;
+}
 
 export class Controller {
 	private adapter: Adapter;
@@ -41,7 +54,7 @@ export class Controller {
 				if (!valid) {
 					throw new ServerError(400, "Invalid contacts provided by adapter.");
 				}
-				return fetchedContacts;
+				return fetchedContacts.map(sanitizeContact);
 			});
 			res.send(contacts || []);
 		} catch (error) {
@@ -61,11 +74,12 @@ export class Controller {
 				throw new ServerError(400, "Invalid contact provided by adapter.");
 			}
 
-			res.send(contact);
+			const sanitizedContact: Contact = sanitizeContact(contact);
+			res.send(sanitizedContact);
 
 			const cached: Contact[] = await this.contactCache.get(apiKey);
 			if (cached) {
-				this.contactCache.set(apiKey, [...cached, contact]);
+				await this.contactCache.set(apiKey, [...cached, sanitizedContact]);
 			}
 		} catch (error) {
 			next(error);
@@ -88,11 +102,14 @@ export class Controller {
 				throw new ServerError(400, "Invalid contact provided by adapter.");
 			}
 
-			res.send(contact);
+			const sanitizedContact: Contact = sanitizeContact(contact);
+			res.send(sanitizedContact);
 
 			const cachedContacts: Contact[] = await this.contactCache.get(apiKey);
 			if (cachedContacts) {
-				const updatedCache: Contact[] = cachedContacts.map(entry => (entry.id === contact.id ? contact : entry));
+				const updatedCache: Contact[] = cachedContacts.map(
+					entry => (entry.id === sanitizedContact.id ? sanitizedContact : entry)
+				);
 				await this.contactCache.set(apiKey, updatedCache);
 			}
 		} catch (error) {
