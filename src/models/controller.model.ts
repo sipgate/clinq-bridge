@@ -1,7 +1,7 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { CookieOptions } from "express-serve-static-core";
-import { Adapter, Config, Contact, ContactTemplate } from ".";
+import { Adapter, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
 import { BridgeRequest } from "./bridge-request.model";
@@ -15,10 +15,12 @@ const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
 export class Controller {
 	private adapter: Adapter;
+	private contactCache: ContactCache;
 	private ajv: Ajv.Ajv;
 
-	constructor(adapter: Adapter) {
+	constructor(adapter: Adapter, contactCache: ContactCache) {
 		this.adapter = adapter;
+		this.contactCache = contactCache;
 		this.ajv = new Ajv();
 
 		this.getContacts = this.getContacts.bind(this);
@@ -31,19 +33,24 @@ export class Controller {
 	}
 
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
-			const contacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
-			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, contacts);
-			if (!valid) {
-				throw new ServerError(400, "Invalid contacts provided by adapter.");
-			}
-			res.send(contacts);
+			const contacts: Contact[] | null = await this.contactCache.get(apiKey, async () => {
+				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
+				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
+				if (!valid) {
+					throw new ServerError(400, "Invalid contacts provided by adapter.");
+				}
+				return fetchedContacts;
+			});
+			res.send(contacts || []);
 		} catch (error) {
 			next(error);
 		}
 	}
 
 	public async createContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.createContact) {
 				throw new ServerError(501, "Creating contacts is not implemented.");
@@ -53,13 +60,20 @@ export class Controller {
 			if (!valid) {
 				throw new ServerError(400, "Invalid contact provided by adapter.");
 			}
+
 			res.send(contact);
+
+			const cached: Contact[] = await this.contactCache.get(apiKey);
+			if (cached) {
+				this.contactCache.set(apiKey, [...cached, contact]);
+			}
 		} catch (error) {
 			next(error);
 		}
 	}
 
 	public async updateContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.updateContact) {
 				throw new ServerError(501, "Updating contacts is not implemented.");
@@ -73,19 +87,35 @@ export class Controller {
 			if (!valid) {
 				throw new ServerError(400, "Invalid contact provided by adapter.");
 			}
+
 			res.send(contact);
+
+			const cachedContacts: Contact[] = await this.contactCache.get(apiKey);
+			if (cachedContacts) {
+				const updatedCache: Contact[] = cachedContacts.map(entry => (entry.id === contact.id ? contact : entry));
+				await this.contactCache.set(apiKey, updatedCache);
+			}
 		} catch (error) {
 			next(error);
 		}
 	}
 
 	public async deleteContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.deleteContact) {
 				throw new ServerError(501, "Deleting contacts is not implemented.");
 			}
-			await this.adapter.deleteContact(req.providerConfig, req.params.id);
+
+			const contactId: string = req.params.id;
+			await this.adapter.deleteContact(req.providerConfig, contactId);
 			res.status(200).send();
+
+			const cached: Contact[] = await this.contactCache.get(apiKey);
+			if (cached) {
+				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
+				await this.contactCache.set(apiKey, updatedCache);
+			}
 		} catch (error) {
 			next(error);
 		}
