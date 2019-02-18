@@ -22,7 +22,6 @@ function sanitizeContact(contact: Contact): Contact {
 			phoneNumber: convertPhonenumberToE164(phoneNumber.phoneNumber)
 		}))
 	};
-	console.log(sanitizeContact, result);
 	return result;
 }
 
