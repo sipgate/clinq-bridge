@@ -11,6 +11,7 @@ import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
 const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
+const CONTACT_FETCH_TIMEOUT: number = 1000;
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
@@ -47,7 +48,7 @@ export class Controller {
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
-			const contacts: Contact[] | null = await this.contactCache.get(apiKey, async () => {
+			const fetcherPromise: Promise<Contact[] | null> = this.contactCache.get(apiKey, async () => {
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
 				if (!valid) {
@@ -55,6 +56,10 @@ export class Controller {
 				}
 				return fetchedContacts.map(sanitizeContact);
 			});
+			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
+				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
+			);
+			const contacts: Contact[] | null = await Promise.race([fetcherPromise, timeoutPromise]);
 			res.send(contacts || []);
 		} catch (error) {
 			next(error);
