@@ -3,10 +3,9 @@ import cookieParser = require("cookie-parser");
 import cors = require("cors");
 import express = require("express");
 import { Server } from "http";
-import { RedisCache } from "./cache";
-import { MockCache } from "./cache/mock-cache";
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
 import { Adapter, ContactCache, Controller } from "./models";
+import { getContactCache } from "./util/getContactCache";
 
 const settingsPort: number = Number(process.env.PORT) || 8080;
 
@@ -17,10 +16,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(extractHeaderMiddleware);
 
-const { REDIS_URL } = process.env;
-
 export function start(adapter: Adapter, port: number = settingsPort): Server {
-	const cache: ContactCache = REDIS_URL ? new RedisCache(REDIS_URL) : new MockCache();
+	const cache: ContactCache = getContactCache();
 
 	const controller: Controller = new Controller(adapter, cache);
 

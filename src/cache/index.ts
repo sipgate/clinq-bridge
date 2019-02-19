@@ -1,1 +1,2 @@
-export * from "./redis-cache";
+export * from "./storage-cache";
+export * from "./mock-cache";
