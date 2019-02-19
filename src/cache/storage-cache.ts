@@ -3,7 +3,13 @@ import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 
 const MINIMUM_REFRESH_INTERVAL_MS: number = 1 * 60 * 1000; // 1 minutes
-const MAXIMUM_REFRESH_INTERVAL_MS: number = 5 * 60 * 1000; // 5 minutes
+const MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT: number = 5 * 60 * 1000; // 5 minutes
+
+let MAXIMUM_REFRESH_INTERVAL_MS: number = MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT;
+const { CACHE_REFRESH_INTERVAL } = process.env;
+if (CACHE_REFRESH_INTERVAL) {
+	MAXIMUM_REFRESH_INTERVAL_MS = Math.max(parseInt(CACHE_REFRESH_INTERVAL, 10) * 1000, MINIMUM_REFRESH_INTERVAL_MS * 2);
+}
 
 export class StorageCache implements ContactCache {
 	private storage: StorageAdapter<Contact[]>;
@@ -12,6 +18,10 @@ export class StorageCache implements ContactCache {
 	constructor(storageAdapter: StorageAdapter<Contact[]>) {
 		this.storage = storageAdapter;
 		this.lastRefreshTimes = new Map<string, number>();
+		console.log(
+			`Initialized storage cache with minimum refresh interval of ${MINIMUM_REFRESH_INTERVAL_MS /
+				1000}s and maximum refresh interval of ${MAXIMUM_REFRESH_INTERVAL_MS / 1000}s.`
+		);
 	}
 
 	public async get(

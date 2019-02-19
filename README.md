@@ -77,3 +77,4 @@ The CLINQ Bridge support configuration through the following environment variabl
 
 * `REDIS_URL`: URL of a Redis instance to cache responses
 * `USE_MEMORY_CACHE`: Use in-memory LRU storage to cache responses (only if no Redis is configured)
+* `CACHE_REFRESH_INTERVAL`: Time a contact in cache is not refreshed (in seconds), only used if redis or memory cache is active
