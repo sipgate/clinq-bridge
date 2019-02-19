@@ -70,3 +70,10 @@ const adapter = {
 
 bridge.start(adapter);
 ```
+
+## Configuration
+
+The CLINQ Bridge support configuration through the following environment variables
+
+* `REDIS_URL`: URL of a Redis instance to cache responses
+* `USE_MEMORY_CACHE`: Use in-memory LRU storage to cache responses (only if no Redis is configured)
