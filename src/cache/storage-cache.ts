@@ -2,13 +2,20 @@ import { Contact, ContactCache } from "../models";
 import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 
-const MINIMUM_REFRESH_INTERVAL_MS: number = 1 * 60 * 1000; // 1 minutes
+const MINIMUM_REFRESH_INTERVAL_MS_DEFAULT: number = 1 * 60 * 1000; // 1 minutes
 const MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT: number = 5 * 60 * 1000; // 5 minutes
 
 let MAXIMUM_REFRESH_INTERVAL_MS: number = MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT;
-const { CACHE_REFRESH_INTERVAL } = process.env;
+let MINIMUM_REFRESH_INTERVAL_MS: number = MINIMUM_REFRESH_INTERVAL_MS_DEFAULT;
+const { CACHE_REFRESH_INTERVAL, CACHE_MINIMUM_REFRESH_INTERVAL } = process.env;
 if (CACHE_REFRESH_INTERVAL) {
 	MAXIMUM_REFRESH_INTERVAL_MS = Math.max(parseInt(CACHE_REFRESH_INTERVAL, 10) * 1000, MINIMUM_REFRESH_INTERVAL_MS * 2);
+}
+if (CACHE_MINIMUM_REFRESH_INTERVAL) {
+	MINIMUM_REFRESH_INTERVAL_MS = Math.max(
+		parseInt(CACHE_MINIMUM_REFRESH_INTERVAL, 10) * 1000,
+		MINIMUM_REFRESH_INTERVAL_MS
+	);
 }
 
 export class StorageCache implements ContactCache {
@@ -78,7 +85,8 @@ export class StorageCache implements ContactCache {
 		const lastRefreshTime: number = this.lastRefreshTimes.get(key);
 		if (lastRefreshTime && new Date().getTime() < lastRefreshTime + MINIMUM_REFRESH_INTERVAL_MS) {
 			console.log(
-				`Not refreshing for key "${anonymizeKey(key)}", minimum refresh interval is ${MINIMUM_REFRESH_INTERVAL_MS}ms.`
+				`Not refreshing for key "${anonymizeKey(key)}", minimum refresh interval is ${MINIMUM_REFRESH_INTERVAL_MS /
+					1000}s.`
 			);
 			return null;
 		}
