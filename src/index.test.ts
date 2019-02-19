@@ -1,3 +1,5 @@
+import * as getPort from "get-port";
+
 import { Server } from "http";
 
 import { start } from ".";
@@ -28,7 +30,9 @@ const testImplementation: Adapter = {
 
 describe("Framework", () => {
 	it("should start the server", async () => {
-		const server: Server = start(testImplementation);
+		const randomFreePort: number = await getPort();
+		console.log("Testing server on port " + randomFreePort);
+		const server: Server = start(testImplementation, randomFreePort);
 		expect(server).toBeDefined();
 		server.close();
 	});

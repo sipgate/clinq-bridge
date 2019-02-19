@@ -8,7 +8,7 @@ import { MockCache } from "./cache/mock-cache";
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
 import { Adapter, ContactCache, Controller } from "./models";
 
-const port: number = Number(process.env.PORT) || 8080;
+const settingsPort: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
@@ -19,7 +19,7 @@ app.use(extractHeaderMiddleware);
 
 const { REDIS_URL } = process.env;
 
-export function start(adapter: Adapter): Server {
+export function start(adapter: Adapter, port: number = settingsPort): Server {
 	const cache: ContactCache = REDIS_URL ? new RedisCache(REDIS_URL) : new MockCache();
 
 	const controller: Controller = new Controller(adapter, cache);
