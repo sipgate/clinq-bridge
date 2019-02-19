@@ -4,11 +4,11 @@ import { anonymizeKey } from "../util/anonymize-key";
 import { PromiseRedisClient } from "./promise-redis-client";
 
 const CACHE_TTL: number = 60 * 60 * 24 * 30; // 30 days
-const MINIMUM_QUERY_INTERVAL: number = 5 * 60; // 5 minutes
+const REFRESH_INTERVAL_MS: number = 5 * 60 * 1000; // 5 minutes
 
 export class RedisCache implements ContactCache {
 	private client: PromiseRedisClient;
-	private queryTimes: Map<string, number>;
+	private lastRefreshTimes: Map<string, number>;
 
 	constructor(url: string) {
 		const client: redis.RedisClient = redis.createClient({
@@ -16,7 +16,7 @@ export class RedisCache implements ContactCache {
 		});
 		this.client = new PromiseRedisClient(client);
 
-		this.queryTimes = new Map<string, number>();
+		this.lastRefreshTimes = new Map<string, number>();
 		console.log("Initialized Redis cache.");
 		client.on("error", error => {
 			console.warn("Redis error: ", error.message);
@@ -31,7 +31,13 @@ export class RedisCache implements ContactCache {
 		try {
 			value = await this.client.get(key);
 			if (value) {
-				console.log(`Found match for key "${anonymizeKey(key)}" in cache. Getting fresh value.`);
+				console.log(`Found match for key "${anonymizeKey(key)}" in cache.`);
+
+				const lastRefreshTime: number = this.lastRefreshTimes.get(key);
+				if (!lastRefreshTime || new Date().getTime() > lastRefreshTime + REFRESH_INTERVAL_MS) {
+					this.getRefreshed(key, getFreshValue);
+				}
+
 				return JSON.parse(value) as Contact[];
 			}
 		} catch (e) {
@@ -43,20 +49,7 @@ export class RedisCache implements ContactCache {
 		}
 
 		console.log(`Found no match for key "${anonymizeKey(key)}" in cache. Getting fresh value.`);
-		const lastFreshValueAccess: number = this.queryTimes.get(key);
-		if (!lastFreshValueAccess || new Date().getTime() > lastFreshValueAccess + MINIMUM_QUERY_INTERVAL) {
-			this.queryTimes.set(key, new Date().getTime());
-			const freshValue: Contact[] = await getFreshValue(key);
-			if (freshValue) {
-				await this.set(key, freshValue);
-			}
-			return freshValue;
-		} else {
-			console.log(
-				`Not refreshing for key "${anonymizeKey(key)}", minimum refresh interval is ${MINIMUM_QUERY_INTERVAL}s.`
-			);
-			return null;
-		}
+		return this.getRefreshed(key, getFreshValue);
 	}
 
 	public async set(key: string, value: Contact[]): Promise<void> {
@@ -75,5 +68,25 @@ export class RedisCache implements ContactCache {
 		} catch (e) {
 			console.warn(`Unable to delete cache for key "${anonymizeKey(key)}".`, e);
 		}
+	}
+
+	private async getRefreshed(
+		key: string,
+		getFreshValue: (key: string) => Promise<Contact[] | null>
+	): Promise<Contact[] | null> {
+		const lastRefreshTime: number = this.lastRefreshTimes.get(key);
+		if (lastRefreshTime && new Date().getTime() < lastRefreshTime + REFRESH_INTERVAL_MS) {
+			console.log(
+				`Not refreshing for key "${anonymizeKey(key)}", minimum refresh interval is ${REFRESH_INTERVAL_MS}s.`
+			);
+			return null;
+		}
+
+		this.lastRefreshTimes.set(key, new Date().getTime());
+		const freshValue: Contact[] = await getFreshValue(key);
+		if (freshValue) {
+			await this.set(key, freshValue);
+		}
+		return freshValue;
 	}
 }
