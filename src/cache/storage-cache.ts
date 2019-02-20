@@ -2,30 +2,37 @@ import { Contact, ContactCache } from "../models";
 import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 
-const MINIMUM_REFRESH_INTERVAL_MS_DEFAULT: number = 1 * 60 * 1000; // 1 minutes
-const MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT: number = 5 * 60 * 1000; // 5 minutes
+const CACHE_REFRESH_INTERVAL_MS_DEFAULT: number = 10 * 60 * 1000; // 10 minutes
 
-let MAXIMUM_REFRESH_INTERVAL_MS: number = MAXIMUM_REFRESH_INTERVAL_MS_DEFAULT;
-let MINIMUM_REFRESH_INTERVAL_MS: number = MINIMUM_REFRESH_INTERVAL_MS_DEFAULT;
-const { CACHE_REFRESH_INTERVAL, CACHE_MINIMUM_REFRESH_INTERVAL } = process.env;
-if (CACHE_REFRESH_INTERVAL) {
-	MAXIMUM_REFRESH_INTERVAL_MS = Math.max(Number(CACHE_REFRESH_INTERVAL) * 1000, MINIMUM_REFRESH_INTERVAL_MS * 2);
+const { CACHE_REFRESH_INTERVAL } = process.env;
+const CACHE_REFRESH_INTERVAL_MS: number = CACHE_REFRESH_INTERVAL
+	? Math.max(Number(CACHE_REFRESH_INTERVAL), 1) * 1000
+	: CACHE_REFRESH_INTERVAL_MS_DEFAULT;
+
+enum CacheItemStateType {
+	CACHED = "CACHED",
+	FETCHING = "FETCHING"
 }
-if (CACHE_MINIMUM_REFRESH_INTERVAL) {
-	MINIMUM_REFRESH_INTERVAL_MS = Math.max(Number(CACHE_MINIMUM_REFRESH_INTERVAL) * 1000, MINIMUM_REFRESH_INTERVAL_MS);
+
+interface CacheItemStateCached {
+	state: CacheItemStateType.CACHED;
+	updated: number;
 }
+
+interface CacheItemStateFetching {
+	state: CacheItemStateType.FETCHING;
+}
+
+type CacheItemState = CacheItemStateCached | CacheItemStateFetching;
 
 export class StorageCache implements ContactCache {
 	private storage: StorageAdapter<Contact[]>;
-	private lastRefreshTimes: Map<string, number>;
+	private cacheItemStates: Map<string, CacheItemState>;
 
 	constructor(storageAdapter: StorageAdapter<Contact[]>) {
 		this.storage = storageAdapter;
-		this.lastRefreshTimes = new Map<string, number>();
-		console.log(
-			`Initialized storage cache with minimum refresh interval of ${MINIMUM_REFRESH_INTERVAL_MS /
-				1000}s and maximum refresh interval of ${MAXIMUM_REFRESH_INTERVAL_MS / 1000}s.`
-		);
+		this.cacheItemStates = new Map<string, CacheItemState>();
+		console.log(`Initialized storage cache with maximum refresh interval of ${CACHE_REFRESH_INTERVAL_MS / 1000}s.`);
 	}
 
 	public async get(
@@ -38,8 +45,13 @@ export class StorageCache implements ContactCache {
 			if (value) {
 				console.log(`Found match for key "${anonymizeKey(key)}" in cache.`);
 
-				const lastRefreshTime: number = this.lastRefreshTimes.get(key);
-				if (!lastRefreshTime || new Date().getTime() > lastRefreshTime + MAXIMUM_REFRESH_INTERVAL_MS) {
+				const cacheItemState: CacheItemState = this.cacheItemStates.get(key);
+				if (
+					!cacheItemState ||
+					(cacheItemState.state === CacheItemStateType.CACHED &&
+						new Date().getTime() > cacheItemState.updated + CACHE_REFRESH_INTERVAL_MS)
+				) {
+					console.log(`Refreshing value for ${anonymizeKey(key)} in the background.`);
 					this.getRefreshed(key, getFreshValue);
 				}
 
@@ -79,17 +91,21 @@ export class StorageCache implements ContactCache {
 		key: string,
 		getFreshValue: (key: string) => Promise<Contact[] | null>
 	): Promise<Contact[] | null> {
-		const lastRefreshTime: number = this.lastRefreshTimes.get(key);
-		if (lastRefreshTime && new Date().getTime() < lastRefreshTime + MINIMUM_REFRESH_INTERVAL_MS) {
-			console.log(
-				`Not refreshing for key "${anonymizeKey(key)}", minimum refresh interval is ${MINIMUM_REFRESH_INTERVAL_MS /
-					1000}s.`
-			);
+		const itemState: CacheItemState = this.cacheItemStates.get(key);
+		if (itemState && itemState.state === CacheItemStateType.FETCHING) {
+			console.log(`Not refreshing for key "${anonymizeKey(key)}" because fetching is already in progress.`);
 			return null;
 		}
 
-		this.lastRefreshTimes.set(key, new Date().getTime());
+		this.cacheItemStates.set(key, {
+			state: CacheItemStateType.FETCHING
+		});
 		const freshValue: Contact[] = await getFreshValue(key);
+		this.cacheItemStates.set(key, {
+			state: CacheItemStateType.CACHED,
+			updated: new Date().getTime()
+		});
+
 		if (freshValue) {
 			await this.set(key, freshValue);
 		}
