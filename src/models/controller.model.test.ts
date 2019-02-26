@@ -101,10 +101,10 @@ describe("getContacts", () => {
 
 		await controller.getContacts(request, response, next);
 
-		const error: ServerError = next.mock.calls[0][0];
+		const data: Contact[] = response._getData();
 
-		expect(next).toBeCalled();
-		expect(error.status).toEqual(400);
+		expect(next).not.toBeCalled();
+		expect(data).toEqual([]);
 	});
 
 	it("should handle an error when retrieving contacts", async () => {

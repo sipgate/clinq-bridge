@@ -48,18 +48,19 @@ export class Controller {
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
-			const fetcherPromise: Promise<Contact[] | null> = this.contactCache.get(apiKey, async () => {
+			const fetcherPromise: Promise<Contact[]> = this.contactCache.get(apiKey, async () => {
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
 				if (!valid) {
-					throw new ServerError(400, "Invalid contacts provided by adapter.");
+					console.error("Invalid contacts provided by adapter.");
+					return [];
 				}
 				return fetchedContacts.map(sanitizeContact);
 			});
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
 			);
-			const contacts: Contact[] | null = await Promise.race([fetcherPromise, timeoutPromise]);
+			const contacts: Contact[] = await Promise.race([fetcherPromise, timeoutPromise]);
 			res.send(contacts || []);
 		} catch (error) {
 			next(error);

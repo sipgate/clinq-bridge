@@ -32,7 +32,6 @@ export const contactsSchema = {
 			},
 			phoneNumbers: {
 				type: "array",
-				minItems: 1,
 				items: {
 					type: "object",
 					properties: {
