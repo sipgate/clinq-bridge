@@ -1,25 +1,25 @@
 import axios, { AxiosResponse } from "axios";
 
-const BASE_URL: string = "https://api.sipgate.com/v2/";
+const BASE_URL: string = "https://api.clinq.com";
 
 export interface CreateIntegrationRequest {
-	crm: string;
-	token: string;
+	name: string;
+	key: string;
 	url: string;
 }
 
 export interface Integration {
 	id: string;
-	crm: string;
+	name: string;
 	url: string;
-	token: string;
+	key: string;
 }
 
 export async function createIntegration(
 	request: CreateIntegrationRequest,
 	authorizationHeader: string
 ): Promise<Integration> {
-	const response: AxiosResponse<Integration> = await axios.post<Integration>("/crm-bridge/tokens", request, {
+	const response: AxiosResponse<Integration> = await axios.post<Integration>("/integrations/registered", request, {
 		baseURL: BASE_URL,
 		headers: { Authorization: authorizationHeader }
 	});

@@ -188,7 +188,7 @@ export class Controller {
 				return;
 			}
 			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
-			const integration: CreateIntegrationRequest = { crm: oAuthIdentifier, token: key, url };
+			const integration: CreateIntegrationRequest = { name: oAuthIdentifier, key, url };
 			await createIntegration(integration, authorizationHeader);
 			res.redirect(APP_WEB_URL);
 		} catch (error) {
