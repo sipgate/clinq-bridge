@@ -1,7 +1,7 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { CookieOptions } from "express-serve-static-core";
-import { Adapter, Config, Contact, ContactCache, ContactTemplate } from ".";
+import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
 import { convertPhonenumberToE164 } from "../util/phone-number-utils";
@@ -40,6 +40,7 @@ export class Controller {
 		this.createContact = this.createContact.bind(this);
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
+		this.handleCallEvent = this.handleCallEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
 		this.oAuth2Redirect = this.oAuth2Redirect.bind(this);
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
@@ -138,6 +139,20 @@ export class Controller {
 				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
 				await this.contactCache.set(apiKey, updatedCache);
 			}
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async handleCallEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (!this.adapter.handleCallEvent) {
+				throw new ServerError(501, "Handling call event is not implemented.");
+			}
+
+			await this.adapter.handleCallEvent(req.providerConfig, req.body as CallEvent);
+
+			res.status(200).send();
 		} catch (error) {
 			next(error);
 		}

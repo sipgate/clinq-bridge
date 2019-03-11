@@ -25,6 +25,7 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
 	app.post("/contacts", controller.createContact);
 	app.put("/contacts/:id", controller.updateContact);
 	app.delete("/contacts/:id", controller.deleteContact);
+	app.post("/events/calls", controller.handleCallEvent);
 	app.get("/health", controller.getHealth);
 	app.get("/oauth2/redirect", controller.oAuth2Redirect);
 	app.get("/oauth2/callback", controller.oAuth2Callback);
