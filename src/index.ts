@@ -37,11 +37,15 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
 
 export {
 	Adapter,
+	CallDirection,
+	CallEvent,
+	CallState,
 	Config,
 	Contact,
 	ContactTemplate,
 	ContactUpdate,
 	PhoneNumber,
 	PhoneNumberLabel,
-	ServerError
+	ServerError,
+	User
 } from "./models";
