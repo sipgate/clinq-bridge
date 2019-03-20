@@ -1,7 +1,5 @@
 import * as getPort from "get-port";
-
 import { Server } from "http";
-
 import { start } from ".";
 import { Adapter, Contact, PhoneNumberLabel } from "./models";
 

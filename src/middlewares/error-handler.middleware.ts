@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-
 import { ServerError } from "../models";
 
 export function errorHandlerMiddleware(

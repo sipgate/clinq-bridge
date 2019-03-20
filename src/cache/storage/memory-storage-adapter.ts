@@ -14,7 +14,7 @@ export class MemoryStorageAdapter<T> implements StorageAdapter<T> {
 			maxAge: CACHE_TTL_MS,
 			length: sizeof
 		});
-		console.log("Initialized Memory storage.");
+		console.log("Initialized Memory storage");
 	}
 
 	public async get(key: string): Promise<T | null> {

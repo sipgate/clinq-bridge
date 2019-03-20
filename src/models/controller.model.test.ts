@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
-
-import { Contact, Controller, ServerError } from ".";
+import { Contact, Controller } from ".";
 import { MockCache } from "../cache/mock-cache";
 import { BridgeRequest } from "./bridge-request.model";
 import { PhoneNumberLabel } from "./contact.model";

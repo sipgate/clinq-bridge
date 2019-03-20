@@ -53,7 +53,7 @@ export class Controller {
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
 				if (!valid) {
-					console.error("Invalid contacts provided by adapter.");
+					console.error("Invalid contacts provided by adapter", this.ajv.errorsText());
 					return [];
 				}
 				return fetchedContacts.map(sanitizeContact);
@@ -72,12 +72,13 @@ export class Controller {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.createContact) {
-				throw new ServerError(501, "Creating contacts is not implemented.");
+				throw new ServerError(501, "Creating contacts is not implemented");
 			}
 			const contact: Contact = await this.adapter.createContact(req.providerConfig, req.body as ContactTemplate);
 			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
 			if (!valid) {
-				throw new ServerError(400, "Invalid contact provided by adapter.");
+				console.error("Invalid contact provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid contact provided by adapter");
 			}
 
 			const sanitizedContact: Contact = sanitizeContact(contact);
@@ -96,7 +97,7 @@ export class Controller {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.updateContact) {
-				throw new ServerError(501, "Updating contacts is not implemented.");
+				throw new ServerError(501, "Updating contacts is not implemented");
 			}
 			const contact: Contact = await this.adapter.updateContact(
 				req.providerConfig,
@@ -105,7 +106,8 @@ export class Controller {
 			);
 			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
 			if (!valid) {
-				throw new ServerError(400, "Invalid contact provided by adapter.");
+				console.error("Invalid contact provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid contact provided by adapter");
 			}
 
 			const sanitizedContact: Contact = sanitizeContact(contact);
@@ -127,7 +129,7 @@ export class Controller {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.deleteContact) {
-				throw new ServerError(501, "Deleting contacts is not implemented.");
+				throw new ServerError(501, "Deleting contacts is not implemented");
 			}
 
 			const contactId: string = req.params.id;
@@ -147,7 +149,7 @@ export class Controller {
 	public async handleCallEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		try {
 			if (!this.adapter.handleCallEvent) {
-				throw new ServerError(501, "Handling call event is not implemented.");
+				throw new ServerError(501, "Handling call event is not implemented");
 			}
 
 			await this.adapter.handleCallEvent(req.providerConfig, req.body as CallEvent);
@@ -172,7 +174,7 @@ export class Controller {
 	public async oAuth2Redirect(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			if (!this.adapter.getOAuth2RedirectUrl) {
-				throw new ServerError(501, "OAuth2 flow not implemented.");
+				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
 			const redirectUrl: string = await this.adapter.getOAuth2RedirectUrl();
 			const token: string = req.get("Authorization");
@@ -189,7 +191,7 @@ export class Controller {
 	public async oAuth2Callback(req: Request, res: Response, next: NextFunction): Promise<void> {
 		try {
 			if (!this.adapter.handleOAuth2Callback) {
-				throw new ServerError(501, "OAuth2 flow not implemented.");
+				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
 		} catch (error) {
 			next(error);
@@ -198,7 +200,7 @@ export class Controller {
 		try {
 			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
 			if (!authorizationHeader) {
-				console.error("Unable to save OAuth2 token: Unauthorized.");
+				console.error("Unable to save OAuth2 token: Unauthorized");
 				res.redirect(APP_WEB_URL);
 				return;
 			}
