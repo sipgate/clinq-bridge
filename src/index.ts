@@ -39,7 +39,6 @@ export {
 	Adapter,
 	CallDirection,
 	CallEvent,
-	CallState,
 	Config,
 	Contact,
 	ContactTemplate,
