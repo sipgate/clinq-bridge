@@ -1,6 +1,6 @@
 {
 	"name": "@clinq/bridge",
-	"version": "7.9.0",
+	"version": "8.0.0",
 	"description": "CLINQ Bridge Framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
