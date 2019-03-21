@@ -1,14 +1,11 @@
-import { CallDirection, CallState, User } from "./";
+import { CallDirection, User } from "./";
 
 export interface CallEvent {
 	id: string;
 	direction: CallDirection;
 	from: string;
 	to: string;
-	fromUser: User | null;
-	toUser: User | null;
-	state: CallState;
-	duration: number;
+	user: User;
 	start: number;
 	end: number;
 }

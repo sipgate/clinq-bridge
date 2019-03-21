@@ -2,7 +2,6 @@ export * from "./adapter.model";
 export * from "./bridge-request.model";
 export * from "./call-direction.enum";
 export * from "./call-event.model";
-export * from "./call-state.enum";
 export * from "./config.model";
 export * from "./contact-cache.model";
 export * from "./contact.model";
