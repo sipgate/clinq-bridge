@@ -46,11 +46,15 @@ export class StorageCache implements ContactCache {
 				console.log(`Found match for key "${anonymizeKey(key)}" in cache.`);
 
 				const cacheItemState: CacheItemState = this.cacheItemStates.get(key);
-				if (
-					!cacheItemState ||
-					(cacheItemState.state === CacheItemStateType.CACHED &&
-						new Date().getTime() > cacheItemState.updated + CACHE_REFRESH_INTERVAL_MS)
-				) {
+
+				const now: number = new Date().getTime();
+
+				const isValueStale: boolean =
+					cacheItemState.state === CacheItemStateType.CACHED &&
+					now > cacheItemState.updated + CACHE_REFRESH_INTERVAL_MS;
+				const isValueNotCached: boolean = !cacheItemState;
+
+				if (isValueNotCached || isValueStale) {
 					console.log(`Refreshing value for ${anonymizeKey(key)} in the background.`);
 					this.getRefreshed(key, getFreshValue);
 				}
@@ -100,15 +104,23 @@ export class StorageCache implements ContactCache {
 		this.cacheItemStates.set(key, {
 			state: CacheItemStateType.FETCHING
 		});
-		const freshValue: Contact[] = await getFreshValue(key);
-		this.cacheItemStates.set(key, {
-			state: CacheItemStateType.CACHED,
-			updated: new Date().getTime()
-		});
 
-		if (freshValue) {
-			await this.set(key, freshValue);
+		try {
+			const freshValue: Contact[] = await getFreshValue(key);
+
+			this.cacheItemStates.set(key, {
+				state: CacheItemStateType.CACHED,
+				updated: new Date().getTime()
+			});
+
+			if (freshValue) {
+				await this.set(key, freshValue);
+			}
+
+			return freshValue;
+		} catch (e) {
+			this.cacheItemStates.delete(key);
+			throw e;
 		}
-		return freshValue;
 	}
 }
