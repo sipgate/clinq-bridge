@@ -4,6 +4,7 @@ import { CookieOptions } from "express-serve-static-core";
 import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
+import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhonenumberToE164 } from "../util/phone-number-utils";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
@@ -62,7 +63,9 @@ export class Controller {
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
 			);
 			const contacts: Contact[] = await Promise.race([fetcherPromise, timeoutPromise]);
-			res.send(contacts || []);
+			const responseContacts: Contact[] = contacts || [];
+			console.log(`Found ${responseContacts.length} contacts for key "${anonymizeKey(apiKey)}"`);
+			res.send(responseContacts);
 		} catch (error) {
 			next(error);
 		}
