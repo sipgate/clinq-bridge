@@ -51,6 +51,7 @@ export class Controller {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			const fetcherPromise: Promise<Contact[]> = this.contactCache.get(apiKey, async () => {
+				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
 				if (!valid) {
@@ -64,7 +65,7 @@ export class Controller {
 			);
 			const contacts: Contact[] = await Promise.race([fetcherPromise, timeoutPromise]);
 			const responseContacts: Contact[] = contacts || [];
-			console.log(`Found ${responseContacts.length} contacts for key "${anonymizeKey(apiKey)}"`);
+			console.log(`Found ${responseContacts.length} cached contacts for key "${anonymizeKey(apiKey)}"`);
 			res.send(responseContacts);
 		} catch (error) {
 			next(error);

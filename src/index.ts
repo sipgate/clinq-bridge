@@ -1,7 +1,8 @@
-import bodyParser = require("body-parser");
-import cookieParser = require("cookie-parser");
-import cors = require("cors");
-import express = require("express");
+import * as bodyParser from "body-parser";
+import * as compression from "compression";
+import * as cookieParser from "cookie-parser";
+import * as cors from "cors";
+import * as express from "express";
 import { Server } from "http";
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
 import { Adapter, ContactCache, Controller } from "./models";
@@ -11,6 +12,7 @@ const settingsPort: number = Number(process.env.PORT) || 8080;
 
 const app: express.Application = express();
 
+app.use(compression());
 app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());

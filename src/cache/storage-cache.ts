@@ -55,7 +55,6 @@ export class StorageCache implements ContactCache {
 				const isValueNotCached: boolean = !cacheItemState;
 
 				if (isValueNotCached || isValueStale) {
-					console.log(`Refreshing value for ${anonymizeKey(key)} in the background.`);
 					this.getRefreshed(key, getFreshValue);
 				}
 
@@ -100,6 +99,8 @@ export class StorageCache implements ContactCache {
 			console.log(`Not refreshing for key "${anonymizeKey(key)}" because fetching is already in progress.`);
 			return null;
 		}
+
+		console.info(`Refreshing value for ${anonymizeKey(key)}.`);
 
 		this.cacheItemStates.set(key, {
 			state: CacheItemStateType.FETCHING
