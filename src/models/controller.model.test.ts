@@ -51,7 +51,12 @@ describe("getContacts", () => {
 	let next: jest.Mock;
 
 	beforeEach(() => {
-		request = createRequest();
+		request = createRequest({
+			providerConfig: {
+				apiKey: "a1b2c3",
+				apiUrl: "http://example.com"
+			}
+		});
 		response = createResponse();
 		next = jest.fn();
 	});
