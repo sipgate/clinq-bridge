@@ -121,8 +121,8 @@ export class StorageCache implements ContactCache {
 
 			return freshValue;
 		} catch (error) {
+			console.info(`Error while refreshing value for ${anonymizeKey(key)}:`, error.message);
 			this.cacheItemStates.delete(key);
-			console.info(`Error while refreshing value for ${anonymizeKey(key)}:`, error);
 			throw error;
 		}
 	}
