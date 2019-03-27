@@ -32,6 +32,6 @@ export class RedisStorageAdapter<T> implements StorageAdapter<T> {
 	}
 
 	public async delete(key: string): Promise<void> {
-		return this.client.del(key);
+		await this.client.del(key);
 	}
 }

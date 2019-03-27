@@ -50,20 +50,26 @@ export class Controller {
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
-			const fetcherPromise: Promise<Contact[]> = this.contactCache.get(apiKey, async () => {
+			const fetcherPromise = this.contactCache.get(apiKey, async () => {
 				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
+
+				if (!req.providerConfig) {
+					console.error("Missing config parameters");
+					return null;
+				}
+
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
 				if (!valid) {
 					console.error("Invalid contacts provided by adapter", this.ajv.errorsText());
-					return [];
+					return null;
 				}
 				return fetchedContacts.map(sanitizeContact);
 			});
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
 			);
-			const contacts: Contact[] = await Promise.race([fetcherPromise, timeoutPromise]);
+			const contacts = await Promise.race([fetcherPromise, timeoutPromise]);
 			const responseContacts: Contact[] = contacts || [];
 			console.log(`Found ${responseContacts.length} cached contacts for key "${anonymizeKey(apiKey)}"`);
 			res.send(responseContacts);
@@ -78,6 +84,11 @@ export class Controller {
 			if (!this.adapter.createContact) {
 				throw new ServerError(501, "Creating contacts is not implemented");
 			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
 			const contact: Contact = await this.adapter.createContact(req.providerConfig, req.body as ContactTemplate);
 			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
 			if (!valid) {
@@ -88,7 +99,7 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact);
 			res.send(sanitizedContact);
 
-			const cached: Contact[] = await this.contactCache.get(apiKey);
+			const cached = await this.contactCache.get(apiKey);
 			if (cached) {
 				await this.contactCache.set(apiKey, [...cached, sanitizedContact]);
 			}
@@ -103,6 +114,11 @@ export class Controller {
 			if (!this.adapter.updateContact) {
 				throw new ServerError(501, "Updating contacts is not implemented");
 			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
 			const contact: Contact = await this.adapter.updateContact(
 				req.providerConfig,
 				req.params.id,
@@ -117,7 +133,7 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact);
 			res.send(sanitizedContact);
 
-			const cachedContacts: Contact[] = await this.contactCache.get(apiKey);
+			const cachedContacts = await this.contactCache.get(apiKey);
 			if (cachedContacts) {
 				const updatedCache: Contact[] = cachedContacts.map(
 					entry => (entry.id === sanitizedContact.id ? sanitizedContact : entry)
@@ -136,11 +152,15 @@ export class Controller {
 				throw new ServerError(501, "Deleting contacts is not implemented");
 			}
 
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
 			const contactId: string = req.params.id;
 			await this.adapter.deleteContact(req.providerConfig, contactId);
 			res.status(200).send();
 
-			const cached: Contact[] = await this.contactCache.get(apiKey);
+			const cached = await this.contactCache.get(apiKey);
 			if (cached) {
 				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
 				await this.contactCache.set(apiKey, updatedCache);
@@ -154,6 +174,10 @@ export class Controller {
 		try {
 			if (!this.adapter.handleCallEvent) {
 				throw new ServerError(501, "Handling call event is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
 			}
 
 			await this.adapter.handleCallEvent(req.providerConfig, req.body as CallEvent);
@@ -180,9 +204,9 @@ export class Controller {
 			if (!this.adapter.getOAuth2RedirectUrl) {
 				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
-			const redirectUrl: string = await this.adapter.getOAuth2RedirectUrl();
-			const token: string = req.get("Authorization");
-			if (typeof token === "string") {
+			const redirectUrl = await this.adapter.getOAuth2RedirectUrl();
+			const token = req.get("Authorization");
+			if (token) {
 				const options: CookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === "production" };
 				res.cookie(SESSION_COOKIE_KEY, token, options);
 			}
@@ -197,20 +221,20 @@ export class Controller {
 			if (!this.adapter.handleOAuth2Callback) {
 				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
-		} catch (error) {
-			next(error);
-		}
 
-		try {
 			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
+
 			if (!authorizationHeader) {
 				console.error("Unable to save OAuth2 token: Unauthorized");
 				res.redirect(APP_WEB_URL);
 				return;
 			}
+
 			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
 			const integration: CreateIntegrationRequest = { name: oAuthIdentifier, key, url };
+
 			await createIntegration(integration, authorizationHeader);
+
 			res.redirect(APP_WEB_URL);
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);

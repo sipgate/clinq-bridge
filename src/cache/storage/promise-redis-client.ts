@@ -2,9 +2,9 @@ import { RedisClient } from "redis";
 import { promisify } from "util";
 
 export class PromiseRedisClient {
-	public del: (key: string) => Promise<void>;
+	public del: (key: string) => Promise<number>;
 	public get: (key: string) => Promise<string>;
-	public set: (key: string, value: string, mode: string, duration: number) => Promise<string>;
+	public set: (key: string, value: string, mode: string, duration: number) => Promise<{}>;
 
 	constructor(client: RedisClient) {
 		this.del = promisify(client.del).bind(client);

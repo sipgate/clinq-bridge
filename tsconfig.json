@@ -6,7 +6,8 @@
 		"sourceMap": true,
 		"declaration": true,
 		"noImplicitAny": true,
-		"noUnusedLocals": true
+		"noUnusedLocals": true,
+		"strict": true
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "src/**/*.test.ts"]
