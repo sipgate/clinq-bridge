@@ -51,12 +51,16 @@ export class Controller {
 		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			const fetcherPromise = this.contactCache.get(apiKey, async () => {
-				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
+				if (!this.adapter.getContacts) {
+					throw new ServerError(501, "Creating contacts is not implemented");
+				}
 
 				if (!req.providerConfig) {
 					console.error("Missing config parameters");
 					return null;
 				}
+
+				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
 
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
 				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
@@ -89,6 +93,8 @@ export class Controller {
 				throw new ServerError(400, "Missing config parameters");
 			}
 
+			console.log(`Creating contact for key "${anonymizeKey(apiKey)}"`);
+
 			const contact: Contact = await this.adapter.createContact(req.providerConfig, req.body as ContactTemplate);
 			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
 			if (!valid) {
@@ -118,6 +124,8 @@ export class Controller {
 			if (!req.providerConfig) {
 				throw new ServerError(400, "Missing config parameters");
 			}
+
+			console.log(`Updating contact for key "${anonymizeKey(apiKey)}"`);
 
 			const contact: Contact = await this.adapter.updateContact(
 				req.providerConfig,
@@ -156,6 +164,8 @@ export class Controller {
 				throw new ServerError(400, "Missing config parameters");
 			}
 
+			console.log(`Deleting contact for key "${anonymizeKey(apiKey)}"`);
+
 			const contactId: string = req.params.id;
 			await this.adapter.deleteContact(req.providerConfig, contactId);
 			res.status(200).send();
@@ -171,6 +181,7 @@ export class Controller {
 	}
 
 	public async handleCallEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
 		try {
 			if (!this.adapter.handleCallEvent) {
 				throw new ServerError(501, "Handling call event is not implemented");
@@ -179,6 +190,8 @@ export class Controller {
 			if (!req.providerConfig) {
 				throw new ServerError(400, "Missing config parameters");
 			}
+
+			console.log(`Handling call event for key "${anonymizeKey(apiKey)}"`);
 
 			await this.adapter.handleCallEvent(req.providerConfig, req.body as CallEvent);
 
