@@ -41,6 +41,7 @@ export {
 	Adapter,
 	CallDirection,
 	CallEvent,
+	Channel,
 	Config,
 	Contact,
 	ContactTemplate,
