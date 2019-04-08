@@ -42,6 +42,7 @@ export class Controller {
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
 		this.handleCallEvent = this.handleCallEvent.bind(this);
+		this.handleConnectedEvent = this.handleConnectedEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
 		this.oAuth2Redirect = this.oAuth2Redirect.bind(this);
 		this.oAuth2Callback = this.oAuth2Callback.bind(this);
@@ -194,6 +195,27 @@ export class Controller {
 			console.log(`Handling call event for key "${anonymizeKey(apiKey)}"`);
 
 			await this.adapter.handleCallEvent(req.providerConfig, req.body as CallEvent);
+
+			res.status(200).send();
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async handleConnectedEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
+		try {
+			if (!this.adapter.handleConnectedEvent) {
+				throw new ServerError(501, "Handling connected event is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
+			console.log(`Handling connected event for key "${anonymizeKey(apiKey)}"`);
+
+			await this.adapter.handleConnectedEvent(req.providerConfig);
 
 			res.status(200).send();
 		} catch (error) {
