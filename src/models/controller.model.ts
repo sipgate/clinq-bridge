@@ -1,8 +1,7 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
-import { CookieOptions } from "express-serve-static-core";
+import { stringify } from "query-string";
 import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
-import { createIntegration, CreateIntegrationRequest } from "../api";
 import { contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhonenumberToE164 } from "../util/phone-number-utils";
@@ -11,7 +10,6 @@ import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations";
-const SESSION_COOKIE_KEY: string = "CLINQ_AUTH";
 const CONTACT_FETCH_TIMEOUT: number = 1000;
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
@@ -240,11 +238,6 @@ export class Controller {
 				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
 			const redirectUrl = await this.adapter.getOAuth2RedirectUrl();
-			const token = req.get("Authorization");
-			if (token) {
-				const options: CookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === "production" };
-				res.cookie(SESSION_COOKIE_KEY, token, options);
-			}
 			res.send({ redirectUrl });
 		} catch (error) {
 			next(error);
@@ -257,20 +250,10 @@ export class Controller {
 				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
 
-			const authorizationHeader: string = req.cookies[SESSION_COOKIE_KEY];
+			const { apiKey, apiUrl }: Config = await this.adapter.handleOAuth2Callback(req);
+			const integration = { name: oAuthIdentifier, apiKey, apiUrl };
 
-			if (!authorizationHeader) {
-				console.error("Unable to save OAuth2 token: Unauthorized");
-				res.redirect(APP_WEB_URL);
-				return;
-			}
-
-			const { apiKey: key, apiUrl: url }: Config = await this.adapter.handleOAuth2Callback(req);
-			const integration: CreateIntegrationRequest = { name: oAuthIdentifier, key, url };
-
-			await createIntegration(integration, authorizationHeader);
-
-			res.redirect(APP_WEB_URL);
+			res.redirect(`${APP_WEB_URL}?${stringify(integration)}`);
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);
 			res.redirect(APP_WEB_URL);

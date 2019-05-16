@@ -1,6 +1,5 @@
 import * as bodyParser from "body-parser";
 import * as compression from "compression";
-import * as cookieParser from "cookie-parser";
 import * as cors from "cors";
 import * as express from "express";
 import { Server } from "http";
@@ -15,7 +14,6 @@ const app: express.Application = express();
 app.use(compression());
 app.use(cors({ credentials: true, origin: true }));
 app.use(bodyParser.json());
-app.use(cookieParser());
 app.use(extractHeaderMiddleware);
 
 export function start(adapter: Adapter, port: number = settingsPort): Server {
