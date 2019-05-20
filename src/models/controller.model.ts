@@ -1,6 +1,6 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
-import { stringify } from "query-string";
+import { stringify } from "querystring";
 import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
@@ -251,9 +251,9 @@ export class Controller {
 			}
 
 			const { apiKey, apiUrl }: Config = await this.adapter.handleOAuth2Callback(req);
-			const integration = { name: oAuthIdentifier, apiKey, apiUrl };
+			const params = stringify({ name: oAuthIdentifier, key: apiKey, url: apiUrl });
 
-			res.redirect(`${APP_WEB_URL}?${stringify(integration)}`);
+			res.redirect(`${APP_WEB_URL}?${params}`);
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);
 			res.redirect(APP_WEB_URL);

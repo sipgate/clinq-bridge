@@ -86,7 +86,6 @@
 		"get-port": "^4.1.0",
 		"google-libphonenumber": "^3.2.2",
 		"lru-cache": "^5.1.1",
-		"query-string": "^6.5.0",
 		"redis": "^2.8.0"
 	}
 }
