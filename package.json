@@ -1,6 +1,6 @@
 {
 	"name": "@clinq/bridge",
-	"version": "10.0.2",
+	"version": "10.0.3",
 	"description": "CLINQ Bridge Framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -39,6 +39,7 @@
 	"lint-staged": {
 		"*.{ts,json}": [
 			"prettier --write",
+			"tslint",
 			"git add"
 		]
 	},
