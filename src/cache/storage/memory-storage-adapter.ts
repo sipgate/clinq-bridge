@@ -1,4 +1,4 @@
-import * as LRU from "lru-cache";
+import LRU from "lru-cache";
 import { StorageAdapter } from "../../models/storage-adapter.model";
 import sizeof from "../../util/sizeof";
 
@@ -6,7 +6,7 @@ const CACHE_TTL_MS: number = 60 * 60 * 24 * 30 * 1000; // 30 days
 const MAX_CACHE_SIZE_BYTES: number = 400 * 1024 * 1024; // 400mb
 
 export class MemoryStorageAdapter<T> implements StorageAdapter<T> {
-	private cache: LRU.Cache<string, T>;
+	private cache: LRU<string, T>;
 
 	constructor() {
 		this.cache = new LRU({
