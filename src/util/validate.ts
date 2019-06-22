@@ -6,6 +6,7 @@ export function validate(ajv: Ajv.Ajv, schemaKeyRef: object | string | boolean, 
 		if (!valid) {
 			console.error("Invalid data provided by adapter", ajv.errorsText());
 		}
+		// console.log("Adapter data is", {valid});
 		return valid;
 	} catch (e) {
 		console.error("Error validating data", e, ajv.errorsText());
