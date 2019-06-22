@@ -6,6 +6,7 @@ export const contactsSchema = {
 	items: {
 		type: "object",
 		properties: {
+			fillDefaults: true,
 			id: {
 				type: "string"
 			},
@@ -35,6 +36,7 @@ export const contactsSchema = {
 				items: {
 					type: "object",
 					properties: {
+						fillDefaults: true,
 						label: {
 							type: "string"
 						},
