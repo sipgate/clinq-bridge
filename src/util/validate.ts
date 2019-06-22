@@ -1,6 +1,6 @@
 import * as Ajv from "ajv";
 
-export function validate(ajv: Ajv.Ajv, schemaKeyRef: object | string | boolean, data: any) {
+export function validate(ajv: Ajv.Ajv, schemaKeyRef: object | string | boolean, data: object) {
 	try {
 		const valid: boolean | PromiseLike<boolean> = ajv.validate(schemaKeyRef, data);
 		if (!valid) {
