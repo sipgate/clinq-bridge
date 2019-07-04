@@ -72,7 +72,7 @@ export class StorageCache implements ContactCache {
 	}
 
 	public async set(key: string, value: Contact[]): Promise<void> {
-		console.log(`Saving contacts for key "${anonymizeKey(key)}" to cache.`);
+		console.log(`Saving ${value.length} contacts for key "${anonymizeKey(key)}" to cache.`);
 		try {
 			await this.storage.set(key, value);
 		} catch (e) {

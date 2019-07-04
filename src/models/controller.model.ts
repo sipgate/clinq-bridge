@@ -2,9 +2,10 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
 import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
-import { contactsSchema } from "../schemas";
+import { contactsSchema } from "../schemas/contacts";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhonenumberToE164 } from "../util/phone-number-utils";
+import { validate } from "../util/validate";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
@@ -62,12 +63,7 @@ export class Controller {
 				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
 
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
-				const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, fetchedContacts);
-				if (!valid) {
-					console.error("Invalid contacts provided by adapter", this.ajv.errorsText());
-					return null;
-				}
-				return fetchedContacts.map(sanitizeContact);
+				return validate(this.ajv, contactsSchema, fetchedContacts) ? fetchedContacts.map(sanitizeContact) : null;
 			});
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
@@ -95,7 +91,9 @@ export class Controller {
 			console.log(`Creating contact for key "${anonymizeKey(apiKey)}"`);
 
 			const contact: Contact = await this.adapter.createContact(req.providerConfig, req.body as ContactTemplate);
-			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
+
+			const valid = validate(this.ajv, contactsSchema, [contact]);
+
 			if (!valid) {
 				console.error("Invalid contact provided by adapter", this.ajv.errorsText());
 				throw new ServerError(400, "Invalid contact provided by adapter");
@@ -131,7 +129,8 @@ export class Controller {
 				req.params.id,
 				req.body as ContactUpdate
 			);
-			const valid: boolean | PromiseLike<boolean> = this.ajv.validate(contactsSchema, [contact]);
+
+			const valid = validate(this.ajv, contactsSchema, [contact]);
 			if (!valid) {
 				console.error("Invalid contact provided by adapter", this.ajv.errorsText());
 				throw new ServerError(400, "Invalid contact provided by adapter");
@@ -142,8 +141,8 @@ export class Controller {
 
 			const cachedContacts = await this.contactCache.get(apiKey);
 			if (cachedContacts) {
-				const updatedCache: Contact[] = cachedContacts.map(
-					entry => (entry.id === sanitizedContact.id ? sanitizedContact : entry)
+				const updatedCache: Contact[] = cachedContacts.map(entry =>
+					entry.id === sanitizedContact.id ? sanitizedContact : entry
 				);
 				await this.contactCache.set(apiKey, updatedCache);
 			}
