@@ -36,9 +36,8 @@ export class StorageCache implements ContactCache {
 	}
 
 	public async get(key: string, getFreshValue?: (key: string) => Promise<Contact[] | null>): Promise<Contact[] | null> {
-		let value: Contact[] | null = null;
 		try {
-			value = await this.storage.get(key);
+			const value = await this.storage.get(key);
 			if (value) {
 				console.log(`Found match for key "${anonymizeKey(key)}" in cache.`);
 
