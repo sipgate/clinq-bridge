@@ -11,7 +11,7 @@ import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations/oauth/callback";
-const CONTACT_FETCH_TIMEOUT: number = 1000;
+const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
