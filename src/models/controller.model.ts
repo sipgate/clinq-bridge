@@ -15,12 +15,12 @@ const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
-function sanitizeContact(contact: Contact): Contact {
+function sanitizeContact(contact: Contact, locale: string): Contact {
 	const result: Contact = {
 		...contact,
 		phoneNumbers: contact.phoneNumbers.map(phoneNumber => ({
 			...phoneNumber,
-			phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber)
+			phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber, locale)
 		}))
 	};
 	return result;
@@ -48,7 +48,9 @@ export class Controller {
 	}
 
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const { providerConfig: { apiKey = "" } = {} } = req;
+		const {
+			providerConfig: { apiKey, locale }
+		} = req;
 		try {
 			const fetcherPromise = this.contactCache.get(apiKey, async () => {
 				if (!this.adapter.getContacts) {
@@ -63,7 +65,9 @@ export class Controller {
 				console.log(`Fetching contacts for key "${anonymizeKey(apiKey)}"`);
 
 				const fetchedContacts: Contact[] = await this.adapter.getContacts(req.providerConfig);
-				return validate(this.ajv, contactsSchema, fetchedContacts) ? fetchedContacts.map(sanitizeContact) : null;
+				return validate(this.ajv, contactsSchema, fetchedContacts)
+					? fetchedContacts.map(contact => sanitizeContact(contact, locale))
+					: null;
 			});
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
@@ -78,7 +82,9 @@ export class Controller {
 	}
 
 	public async createContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const { providerConfig: { apiKey = "" } = {} } = req;
+		const {
+			providerConfig: { apiKey, locale }
+		} = req;
 		try {
 			if (!this.adapter.createContact) {
 				throw new ServerError(501, "Creating contacts is not implemented");
@@ -99,7 +105,7 @@ export class Controller {
 				throw new ServerError(400, "Invalid contact provided by adapter");
 			}
 
-			const sanitizedContact: Contact = sanitizeContact(contact);
+			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
 			const cached = await this.contactCache.get(apiKey);
@@ -112,7 +118,9 @@ export class Controller {
 	}
 
 	public async updateContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const { providerConfig: { apiKey = "" } = {} } = req;
+		const {
+			providerConfig: { apiKey, locale }
+		} = req;
 		try {
 			if (!this.adapter.updateContact) {
 				throw new ServerError(501, "Updating contacts is not implemented");
@@ -136,13 +144,13 @@ export class Controller {
 				throw new ServerError(400, "Invalid contact provided by adapter");
 			}
 
-			const sanitizedContact: Contact = sanitizeContact(contact);
+			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
 			const cachedContacts = await this.contactCache.get(apiKey);
 			if (cachedContacts) {
-				const updatedCache: Contact[] = cachedContacts.map(
-					entry => (entry.id === sanitizedContact.id ? sanitizedContact : entry)
+				const updatedCache: Contact[] = cachedContacts.map(entry =>
+					entry.id === sanitizedContact.id ? sanitizedContact : entry
 				);
 				await this.contactCache.set(apiKey, updatedCache);
 			}

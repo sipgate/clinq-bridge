@@ -54,7 +54,8 @@ describe("getContacts", () => {
 		request = createRequest({
 			providerConfig: {
 				apiKey: "a1b2c3",
-				apiUrl: "http://example.com"
+				apiUrl: "http://example.com",
+				locale: "de_DE"
 			}
 		});
 		response = createResponse();
