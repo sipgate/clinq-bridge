@@ -4,7 +4,7 @@ import { stringify } from "querystring";
 import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
 import { contactsSchema } from "../schemas/contacts";
 import { anonymizeKey } from "../util/anonymize-key";
-import { convertPhonenumberToE164 } from "../util/phone-number-utils";
+import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
 import { validate } from "../util/validate";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
@@ -20,7 +20,7 @@ function sanitizeContact(contact: Contact): Contact {
 		...contact,
 		phoneNumbers: contact.phoneNumbers.map(phoneNumber => ({
 			...phoneNumber,
-			phoneNumber: convertPhonenumberToE164(phoneNumber.phoneNumber)
+			phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber)
 		}))
 	};
 	return result;
@@ -141,8 +141,8 @@ export class Controller {
 
 			const cachedContacts = await this.contactCache.get(apiKey);
 			if (cachedContacts) {
-				const updatedCache: Contact[] = cachedContacts.map(entry =>
-					entry.id === sanitizedContact.id ? sanitizedContact : entry
+				const updatedCache: Contact[] = cachedContacts.map(
+					entry => (entry.id === sanitizedContact.id ? sanitizedContact : entry)
 				);
 				await this.contactCache.set(apiKey, updatedCache);
 			}

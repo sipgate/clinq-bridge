@@ -5,7 +5,7 @@ const LANGUAGE: string = "DE";
 const phoneUtil: PhoneNumberUtil = PhoneNumberUtil.getInstance();
 const MIN_PHONENUMBER_E164_LENGTH: number = 10;
 
-export const convertPhonenumberToE164: (phoneNumber: string) => string = phoneNumber => {
+export const convertPhoneNumberToE164: (phoneNumber: string) => string = phoneNumber => {
 	try {
 		const parsedPhoneNumber: libphonenumber.PhoneNumber = phoneUtil.parse(
 			prefixInternationalPhoneNumberWithPlus(phoneNumber),
