@@ -1,7 +1,7 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
-import { Adapter, CallEvent, Config, Contact, ContactCache, ContactTemplate } from ".";
+import { Adapter, CallEvent, Contact, ContactCache, ContactTemplate } from ".";
 import { contactsSchema } from "../schemas/contacts";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
@@ -251,7 +251,7 @@ export class Controller {
 				throw new ServerError(501, "OAuth2 flow not implemented");
 			}
 
-			const { apiKey, apiUrl }: Config = await this.adapter.handleOAuth2Callback(req);
+			const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req);
 			const params = stringify({ name: oAuthIdentifier, key: apiKey, url: apiUrl });
 
 			res.redirect(`${APP_WEB_URL}?${params}`);

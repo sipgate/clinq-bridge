@@ -10,5 +10,5 @@ export interface Adapter {
 	handleConnectedEvent?: (config: Config) => Promise<void>;
 	getHealth?: () => Promise<void>;
 	getOAuth2RedirectUrl?: () => Promise<string>;
-	handleOAuth2Callback?: (req: Request) => Promise<Config>;
+	handleOAuth2Callback?: (req: Request) => Promise<{ apiKey: string; apiUrl: string }>;
 }
