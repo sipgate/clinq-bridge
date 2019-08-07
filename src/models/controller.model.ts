@@ -48,9 +48,7 @@ export class Controller {
 	}
 
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const {
-			providerConfig: { apiKey, locale }
-		} = req;
+		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
 		try {
 			const fetcherPromise = this.contactCache.get(apiKey, async () => {
 				if (!this.adapter.getContacts) {
@@ -82,9 +80,7 @@ export class Controller {
 	}
 
 	public async createContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const {
-			providerConfig: { apiKey, locale }
-		} = req;
+		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
 		try {
 			if (!this.adapter.createContact) {
 				throw new ServerError(501, "Creating contacts is not implemented");
@@ -118,9 +114,7 @@ export class Controller {
 	}
 
 	public async updateContact(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const {
-			providerConfig: { apiKey, locale }
-		} = req;
+		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
 		try {
 			if (!this.adapter.updateContact) {
 				throw new ServerError(501, "Updating contacts is not implemented");
