@@ -1,10 +1,10 @@
 import { MockCache, StorageCache } from "../cache";
 import { MemoryStorageAdapter, RedisStorageAdapter } from "../cache/storage";
-import { ContactCache } from "../models";
+import { Cache } from "../models";
 
 const { REDIS_URL, USE_MEMORY_CACHE } = process.env;
 
-export function getContactCache(): ContactCache {
+export function getCache(): Cache {
 	if (REDIS_URL) {
 		console.log("Using redis cache");
 		return new StorageCache(new RedisStorageAdapter(REDIS_URL));

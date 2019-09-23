@@ -1,4 +1,5 @@
-import { Contact, ContactCache } from "../models";
+import { Cache, Contact } from "../models";
+import { ApiUser } from "../models/staff.model";
 import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 
@@ -25,17 +26,20 @@ interface CacheItemStateFetching {
 
 type CacheItemState = CacheItemStateCached | CacheItemStateFetching;
 
-export class StorageCache implements ContactCache {
-	private storage: StorageAdapter<Contact[]>;
+export class StorageCache implements Cache {
+	private storage: StorageAdapter<Contact[] | ApiUser>;
 	private cacheItemStates: Map<string, CacheItemState>;
 
-	constructor(storageAdapter: StorageAdapter<Contact[]>) {
+	constructor(storageAdapter: StorageAdapter<Contact[] | ApiUser>) {
 		this.storage = storageAdapter;
 		this.cacheItemStates = new Map<string, CacheItemState>();
 		console.log(`Initialized storage cache with maximum refresh interval of ${CACHE_REFRESH_INTERVAL_MS / 1000}s.`);
 	}
 
-	public async get(key: string, getFreshValue?: (key: string) => Promise<Contact[] | null>): Promise<Contact[] | null> {
+	public async get(
+		key: string,
+		getFreshValue?: (key: string) => Promise<Contact[] | ApiUser | null>
+	): Promise<Contact[] | ApiUser | null> {
 		try {
 			const value = await this.storage.get(key);
 			if (value) {
@@ -71,8 +75,9 @@ export class StorageCache implements ContactCache {
 		return this.getRefreshed(key, getFreshValue);
 	}
 
-	public async set(key: string, value: Contact[]): Promise<void> {
-		console.log(`Saving ${value.length} contacts for key "${anonymizeKey(key)}" to cache.`);
+	public async set(key: string, value: Contact[] | ApiUser): Promise<void> {
+		const length = (value as Contact[]).length ? (value as Contact[]).length : 1;
+		console.log(`Saving ${length} values for key "${anonymizeKey(key)}" to cache.`);
 		try {
 			await this.storage.set(key, value);
 		} catch (e) {
@@ -91,8 +96,8 @@ export class StorageCache implements ContactCache {
 
 	private async getRefreshed(
 		key: string,
-		getFreshValue: (key: string) => Promise<Contact[] | null>
-	): Promise<Contact[] | null> {
+		getFreshValue: (key: string) => Promise<Contact[] | ApiUser | null>
+	): Promise<Contact[] | ApiUser | null> {
 		const itemState = this.cacheItemStates.get(key);
 
 		if (itemState && itemState.state === CacheItemStateType.FETCHING) {

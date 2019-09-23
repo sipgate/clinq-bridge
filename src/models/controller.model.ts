@@ -1,7 +1,7 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
-import { Adapter, CallEvent, Contact, ContactCache, ContactTemplate } from ".";
+import { Adapter, Cache, CallEvent, Contact, ContactTemplate } from ".";
 import { contactsSchema } from "../schemas/contacts";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
@@ -9,6 +9,7 @@ import { validate } from "../util/validate";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
+import { ApiUser, ContactHook, HookEvent } from "./staff.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations/oauth/callback";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
@@ -28,18 +29,19 @@ function sanitizeContact(contact: Contact, locale: string): Contact {
 
 export class Controller {
 	private adapter: Adapter;
-	private contactCache: ContactCache;
+	private cache: Cache;
 	private ajv: Ajv.Ajv;
 
-	constructor(adapter: Adapter, contactCache: ContactCache) {
+	constructor(adapter: Adapter, cache: Cache) {
 		this.adapter = adapter;
-		this.contactCache = contactCache;
+		this.cache = cache;
 		this.ajv = new Ajv();
 
 		this.getContacts = this.getContacts.bind(this);
 		this.createContact = this.createContact.bind(this);
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
+		this.contactHook = this.contactHook.bind(this);
 		this.handleCallEvent = this.handleCallEvent.bind(this);
 		this.handleConnectedEvent = this.handleConnectedEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
@@ -50,9 +52,9 @@ export class Controller {
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
 		try {
-			const fetcherPromise = this.contactCache.get(apiKey, async () => {
+			const fetcherPromise = this.cache.get(apiKey, async () => {
 				if (!this.adapter.getContacts) {
-					throw new ServerError(501, "Creating contacts is not implemented");
+					throw new ServerError(501, "Fetching contacts is not implemented");
 				}
 
 				if (!req.providerConfig) {
@@ -70,7 +72,7 @@ export class Controller {
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
 			);
-			const contacts = await Promise.race([fetcherPromise, timeoutPromise]);
+			const contacts = (await Promise.race([fetcherPromise, timeoutPromise])) as Contact[];
 			const responseContacts: Contact[] = contacts || [];
 			console.log(`Found ${responseContacts.length} cached contacts for key "${anonymizeKey(apiKey)}"`);
 			res.send(responseContacts);
@@ -104,9 +106,9 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
-			const cached = await this.contactCache.get(apiKey);
+			const cached = (await this.cache.get(apiKey)) as Contact[];
 			if (cached) {
-				await this.contactCache.set(apiKey, [...cached, sanitizedContact]);
+				await this.cache.set(apiKey, [...cached, sanitizedContact]);
 			}
 		} catch (error) {
 			next(error);
@@ -141,12 +143,12 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
-			const cachedContacts = await this.contactCache.get(apiKey);
+			const cachedContacts = (await this.cache.get(apiKey)) as Contact[];
 			if (cachedContacts) {
 				const updatedCache: Contact[] = cachedContacts.map(entry =>
 					entry.id === sanitizedContact.id ? sanitizedContact : entry
 				);
-				await this.contactCache.set(apiKey, updatedCache);
+				await this.cache.set(apiKey, updatedCache);
 			}
 		} catch (error) {
 			next(error);
@@ -170,10 +172,62 @@ export class Controller {
 			await this.adapter.deleteContact(req.providerConfig, contactId);
 			res.status(200).send();
 
-			const cached = await this.contactCache.get(apiKey);
+			const cached = (await this.cache.get(apiKey)) as Contact[];
 			if (cached) {
 				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
-				await this.contactCache.set(apiKey, updatedCache);
+				await this.cache.set(apiKey, updatedCache);
+			}
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async contactHook(req: Request, res: Response, next: NextFunction): Promise<void> {
+		try {
+			if (!this.adapter.contactHook) {
+				throw new ServerError(501, "Contacts hook is not implemented");
+			}
+
+			console.log(`Receive contact hook"`);
+
+			const contactHook: ContactHook = await this.adapter.contactHook(req.headers, req.body);
+
+			res.status(200).send();
+
+			const validCreatedContact = validate(this.ajv, contactsSchema, [contactHook.contact]);
+			if (!validCreatedContact) {
+				console.error("Invalid contact provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid contact provided by adapter");
+			}
+
+			const cacheKey = `api_user_${contactHook.userId}`;
+			const apiUser = (await this.cache.get(cacheKey)) as ApiUser;
+
+			if (apiUser) {
+				const sanitizedContact: Contact = sanitizeContact(contactHook.contact, apiUser.locale);
+				const cachedContacts = (await this.cache.get(apiUser.apiKey)) as Contact[];
+
+				switch (contactHook.event) {
+					case HookEvent.CREATE:
+						if (cachedContacts) {
+							await this.cache.set(apiUser.apiKey, [...cachedContacts, sanitizedContact]);
+						}
+						break;
+					case HookEvent.UPDATE:
+						if (cachedContacts) {
+							const updatedCache: Contact[] = cachedContacts.map(entry =>
+								entry.id === sanitizedContact.id ? sanitizedContact : entry
+							);
+							await this.cache.set(apiUser.apiKey, updatedCache);
+						}
+						break;
+					case HookEvent.DELETE:
+						if (cachedContacts) {
+							const updatedCache: Contact[] = cachedContacts.filter(entry => entry.id !== sanitizedContact.id);
+							await this.cache.set(apiUser.apiKey, updatedCache);
+						}
+						break;
+				}
 			}
 		} catch (error) {
 			next(error);

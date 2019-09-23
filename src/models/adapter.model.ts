@@ -1,11 +1,15 @@
 import { Request } from "express";
+import { IncomingHttpHeaders } from "http";
 import { CallEvent, Config, Contact, ContactTemplate, ContactUpdate } from ".";
+import { ContactHook } from "./staff.model";
 
 export interface Adapter {
 	getContacts?: (config: Config) => Promise<Contact[]>;
 	createContact?: (config: Config, contact: ContactTemplate) => Promise<Contact>;
 	updateContact?: (config: Config, id: string, contact: ContactUpdate) => Promise<Contact>;
 	deleteContact?: (config: Config, id: string) => Promise<void>;
+	// tslint:disable-next-line:no-any
+	contactHook?: (headers: IncomingHttpHeaders, data: any) => Promise<ContactHook>;
 	handleCallEvent?: (config: Config, event: CallEvent) => Promise<void>;
 	handleConnectedEvent?: (config: Config) => Promise<void>;
 	getHealth?: () => Promise<void>;

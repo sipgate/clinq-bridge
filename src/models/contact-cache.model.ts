@@ -1,9 +1,10 @@
 import { Contact } from "./contact.model";
+import { ApiUser } from "./staff.model";
 
-type FreshValueUpdater = (key: string) => Promise<Contact[] | null>;
+type FreshValueUpdater = (key: string) => Promise<Contact[] | ApiUser | null>;
 
-export interface ContactCache {
-	get: (key: string, getFreshValue?: FreshValueUpdater) => Promise<Contact[] | null>;
-	set: (key: string, value: Contact[]) => Promise<void>;
+export interface Cache {
+	get: (key: string, getFreshValue?: FreshValueUpdater) => Promise<Contact[] | ApiUser | null>;
+	set: (key: string, value: Contact[] | ApiUser) => Promise<void>;
 	delete: (key: string) => Promise<void>;
 }
