@@ -8,8 +8,8 @@ import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
 import { validate } from "../util/validate";
 import { BridgeRequest } from "./bridge-request.model";
 import { ContactUpdate } from "./contact.model";
+import { ApiUser, ContactHook, HookEvent } from "./hook.model";
 import { ServerError } from "./server-error.model";
-import { ApiUser, ContactHook, HookEvent } from "./staff.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations/oauth/callback";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
@@ -42,6 +42,7 @@ export class Controller {
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
 		this.contactHook = this.contactHook.bind(this);
+		this.updateApiUser = this.updateApiUser.bind(this);
 		this.handleCallEvent = this.handleCallEvent.bind(this);
 		this.handleConnectedEvent = this.handleConnectedEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
@@ -76,6 +77,8 @@ export class Controller {
 			const responseContacts: Contact[] = contacts || [];
 			console.log(`Found ${responseContacts.length} cached contacts for key "${anonymizeKey(apiKey)}"`);
 			res.send(responseContacts);
+
+			await this.updateApiUser(req);
 		} catch (error) {
 			next(error);
 		}
@@ -110,6 +113,7 @@ export class Controller {
 			if (cached) {
 				await this.cache.set(apiKey, [...cached, sanitizedContact]);
 			}
+			await this.updateApiUser(req);
 		} catch (error) {
 			next(error);
 		}
@@ -150,6 +154,7 @@ export class Controller {
 				);
 				await this.cache.set(apiKey, updatedCache);
 			}
+			await this.updateApiUser(req);
 		} catch (error) {
 			next(error);
 		}
@@ -177,6 +182,7 @@ export class Controller {
 				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
 				await this.cache.set(apiKey, updatedCache);
 			}
+			await this.updateApiUser(req);
 		} catch (error) {
 			next(error);
 		}
@@ -271,6 +277,8 @@ export class Controller {
 			await this.adapter.handleConnectedEvent(req.providerConfig);
 
 			res.status(200).send();
+
+			await this.updateApiUser(req);
 		} catch (error) {
 			next(error);
 		}
@@ -312,6 +320,37 @@ export class Controller {
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);
 			res.redirect(APP_WEB_URL);
+		}
+	}
+
+	private async updateApiUser(req: BridgeRequest): Promise<void> {
+		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
+
+		if (!this.adapter.getStaffMember) {
+			console.debug("Fetching staff member not implemented");
+			return;
+		}
+		if (!req.providerConfig) {
+			console.error("Missing config parameters");
+			return;
+		}
+
+		const staffMember = await this.adapter.getStaffMember(req.providerConfig);
+		const cachedApiUser = (await this.cache.get(apiKey)) as ApiUser;
+
+		if (
+			!cachedApiUser ||
+			cachedApiUser.apiKey !== apiKey ||
+			cachedApiUser.userId !== staffMember.id ||
+			cachedApiUser.locale !== locale
+		) {
+			const apiUser: ApiUser = {
+				userId: staffMember.id,
+				apiKey,
+				locale
+			};
+
+			await this.cache.set(`api_user_${staffMember.id}`, apiUser);
 		}
 	}
 }

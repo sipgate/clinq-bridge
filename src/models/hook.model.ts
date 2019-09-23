@@ -14,6 +14,11 @@ export enum HookEvent {
 }
 
 export interface ApiUser {
+	userId: string;
 	apiKey: string;
 	locale: string;
+}
+
+export interface StaffMember {
+	id: string;
 }

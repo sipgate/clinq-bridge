@@ -1,5 +1,5 @@
 import { Cache, Contact } from "../models";
-import { ApiUser } from "../models/staff.model";
+import { ApiUser } from "../models/hook.model";
 import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 

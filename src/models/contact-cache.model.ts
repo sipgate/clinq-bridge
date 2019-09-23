@@ -1,5 +1,5 @@
 import { Contact } from "./contact.model";
-import { ApiUser } from "./staff.model";
+import { ApiUser } from "./hook.model";
 
 type FreshValueUpdater = (key: string) => Promise<Contact[] | ApiUser | null>;
 

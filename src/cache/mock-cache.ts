@@ -1,5 +1,5 @@
 import { Cache, Contact } from "../models";
-import { ApiUser } from "../models/staff.model";
+import { ApiUser } from "../models/hook.model";
 
 export class MockCache implements Cache {
 	public get(
