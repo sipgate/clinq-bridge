@@ -1,16 +1,22 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
-import { Adapter, CallEvent, Contact, ContactCache, ContactTemplate } from ".";
-import { calendarEventsSchema } from "../schemas/calendarEvents";
-import { contactsSchema } from "../schemas/contacts";
+import {
+	Adapter,
+	BridgeRequest,
+	CalendarEvent,
+	CalendarEventTemplate,
+	CallEvent,
+	Contact,
+	ContactCache,
+	ContactTemplate,
+	ContactUpdate,
+	ServerError
+} from ".";
+import { calendarEventsSchema, contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
 import { validate } from "../util/validate";
-import { BridgeRequest } from "./bridge-request.model";
-import { CalendarEvent } from "./calendar-event.model";
-import { ContactUpdate } from "./contact.model";
-import { ServerError } from "./server-error.model";
 
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations/oauth/callback";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
@@ -43,6 +49,9 @@ export class Controller {
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
 		this.getCalendarEvents = this.getCalendarEvents.bind(this);
+		this.createCalendarEvent = this.createCalendarEvent.bind(this);
+		this.updateCalendarEvent = this.updateCalendarEvent.bind(this);
+		this.deleteCalendarEvent = this.deleteCalendarEvent.bind(this);
 		this.handleCallEvent = this.handleCallEvent.bind(this);
 		this.handleConnectedEvent = this.handleConnectedEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
@@ -197,15 +206,96 @@ export class Controller {
 
 			console.log(`Fetching calendar events for key "${anonymizeKey(apiKey)}"`);
 
-			const fetchedCalendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig);
-			const valid = validate(this.ajv, calendarEventsSchema, fetchedCalendarEvents);
+			const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig);
+			const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
 			if (!valid) {
 				console.error("Invalid calendar events provided by adapter", this.ajv.errorsText());
 				throw new ServerError(400, "Invalid calendar events provided by adapter");
 			}
 
-			console.log(`Found ${fetchedCalendarEvents.length} events for key "${anonymizeKey(apiKey)}"`);
-			res.send(fetchedCalendarEvents);
+			console.log(`Found ${calendarEvents.length} events for key "${anonymizeKey(apiKey)}"`);
+			res.send(calendarEvents);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async createCalendarEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
+		try {
+			if (!this.adapter.createCalendarEvent) {
+				throw new ServerError(501, "Creating calendar events is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
+			console.log(`Creating calendar event for key "${anonymizeKey(apiKey)}"`);
+
+			const calendarEvent: CalendarEvent = await this.adapter.createCalendarEvent(
+				req.providerConfig,
+				req.body as CalendarEventTemplate
+			);
+
+			const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
+			if (!valid) {
+				console.error("Invalid calendar event provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid calendar event provided by adapter");
+			}
+
+			res.send(calendarEvent);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async updateCalendarEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
+		try {
+			if (!this.adapter.updateCalendarEvent) {
+				throw new ServerError(501, "Updating calendar events is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
+			console.log(`Updating calendar event for key "${anonymizeKey(apiKey)}"`);
+
+			const calendarEvent: CalendarEvent = await this.adapter.updateCalendarEvent(
+				req.providerConfig,
+				req.params.id,
+				req.body as CalendarEventTemplate
+			);
+
+			const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
+			if (!valid) {
+				console.error("Invalid calendar event provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid calendar event provided by adapter");
+			}
+
+			res.send(calendarEvent);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async deleteCalendarEvent(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
+		try {
+			if (!this.adapter.deleteCalendarEvent) {
+				throw new ServerError(501, "Deleting calendar events is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				throw new ServerError(400, "Missing config parameters");
+			}
+
+			console.log(`Deleting calendar event for key "${anonymizeKey(apiKey)}"`);
+
+			await this.adapter.deleteCalendarEvent(req.providerConfig, req.params.id);
+			res.status(200).send();
 		} catch (error) {
 			next(error);
 		}

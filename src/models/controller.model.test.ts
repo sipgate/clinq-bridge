@@ -1,9 +1,8 @@
 import { Response } from "express";
 import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
-import { Contact, Controller } from ".";
+import { CalendarEvent, Contact, Controller } from ".";
 import { MockCache } from "../cache/mock-cache";
 import { BridgeRequest } from "./bridge-request.model";
-import { CalendarEvent } from "./calendar-event.model";
 import { PhoneNumberLabel } from "./contact.model";
 
 const contactsMock: Contact[] = [
@@ -25,11 +24,14 @@ const contactsMock: Contact[] = [
 	}
 ];
 
-const calendarEventsMock: CalendarEvent[] = [
-	{
-		id: "abc123"
-	}
-];
+const calendarEventMock: CalendarEvent = {
+	id: "abc123",
+	title: "My Event",
+	description: "Awesome event",
+	eventUrl: "https://wwww.google.com",
+	start: 123456789,
+	end: 123456789
+};
 
 const contactsMinimumMock: Contact[] = [
 	{
@@ -153,7 +155,7 @@ describe("getCalendarEvents", () => {
 	it("should handle calendar events", async () => {
 		const controller: Controller = new Controller(
 			{
-				getCalendarEvents: () => Promise.resolve(calendarEventsMock)
+				getCalendarEvents: () => Promise.resolve([calendarEventMock])
 			},
 			new MockCache()
 		);
@@ -163,7 +165,22 @@ describe("getCalendarEvents", () => {
 		const data: CalendarEvent[] = response._getData();
 
 		expect(next).not.toBeCalled();
-		expect(data).toEqual(calendarEventsMock);
+		expect(data).toEqual([calendarEventMock]);
+	});
+
+	it("should handle invalid calendar events", async () => {
+		const calendarEventsBrokenMock: CalendarEvent[] = [{ ...calendarEventMock }];
+		delete calendarEventsBrokenMock[0].id;
+		const controller: Controller = new Controller(
+			{
+				getCalendarEvents: () => Promise.resolve(calendarEventsBrokenMock)
+			},
+			new MockCache()
+		);
+
+		await controller.getCalendarEvents(request, response, next);
+
+		expect(next).toBeCalled();
 	});
 
 	it("should handle an error when retrieving calendar events", async () => {
@@ -175,6 +192,175 @@ describe("getCalendarEvents", () => {
 		);
 
 		await controller.getCalendarEvents(request, response, next);
+
+		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+});
+
+describe("createCalendarEvent", () => {
+	let request: MockRequest<BridgeRequest>;
+	let response: MockResponse<Response>;
+	let next: jest.Mock;
+
+	beforeEach(() => {
+		request = createRequest({
+			providerConfig: {
+				apiKey: "a1b2c3",
+				apiUrl: "http://example.com",
+				locale: "de_DE"
+			}
+		});
+		response = createResponse();
+		next = jest.fn();
+	});
+
+	it("should create calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				createCalendarEvent: () => Promise.resolve(calendarEventMock)
+			},
+			new MockCache()
+		);
+
+		await controller.createCalendarEvent(request, response, next);
+
+		const data: CalendarEvent = response._getData();
+
+		expect(next).not.toBeCalled();
+		expect(data).toEqual(calendarEventMock);
+	});
+
+	it("should handle invalid calendar events", async () => {
+		const calendarEventBrokenMock: CalendarEvent = { ...calendarEventMock };
+		delete calendarEventBrokenMock.id;
+		const controller: Controller = new Controller(
+			{
+				createCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
+			},
+			new MockCache()
+		);
+
+		await controller.createCalendarEvent(request, response, next);
+
+		expect(next).toBeCalled();
+	});
+
+	it("should handle an error when creating calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				createCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+			},
+			new MockCache()
+		);
+
+		await controller.createCalendarEvent(request, response, next);
+
+		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+});
+
+describe("updateCalendarEvent", () => {
+	let request: MockRequest<BridgeRequest>;
+	let response: MockResponse<Response>;
+	let next: jest.Mock;
+
+	beforeEach(() => {
+		request = createRequest({
+			providerConfig: {
+				apiKey: "a1b2c3",
+				apiUrl: "http://example.com",
+				locale: "de_DE"
+			}
+		});
+		response = createResponse();
+		next = jest.fn();
+	});
+
+	it("should update calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				updateCalendarEvent: () => Promise.resolve(calendarEventMock)
+			},
+			new MockCache()
+		);
+
+		await controller.updateCalendarEvent(request, response, next);
+
+		const data: CalendarEvent = response._getData();
+
+		expect(next).not.toBeCalled();
+		expect(data).toEqual(calendarEventMock);
+	});
+
+	it("should handle invalid calendar events", async () => {
+		const calendarEventBrokenMock: CalendarEvent = { ...calendarEventMock };
+		delete calendarEventBrokenMock.id;
+		const controller: Controller = new Controller(
+			{
+				updateCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
+			},
+			new MockCache()
+		);
+
+		await controller.updateCalendarEvent(request, response, next);
+
+		expect(next).toBeCalled();
+	});
+
+	it("should handle an error when updating calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				updateCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+			},
+			new MockCache()
+		);
+
+		await controller.updateCalendarEvent(request, response, next);
+
+		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+});
+
+describe("deleteCalendarEvent", () => {
+	let request: MockRequest<BridgeRequest>;
+	let response: MockResponse<Response>;
+	let next: jest.Mock;
+
+	beforeEach(() => {
+		request = createRequest({
+			providerConfig: {
+				apiKey: "a1b2c3",
+				apiUrl: "http://example.com",
+				locale: "de_DE"
+			}
+		});
+		response = createResponse();
+		next = jest.fn();
+	});
+
+	it("should delete calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				deleteCalendarEvent: () => Promise.resolve()
+			},
+			new MockCache()
+		);
+
+		await controller.deleteCalendarEvent(request, response, next);
+
+		expect(next).not.toBeCalled();
+		expect(response._getStatusCode()).toEqual(200);
+	});
+
+	it("should handle an error when deleting calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				deleteCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+			},
+			new MockCache()
+		);
+
+		await controller.deleteCalendarEvent(request, response, next);
 
 		expect(next).toBeCalledWith(ERROR_MESSAGE);
 	});

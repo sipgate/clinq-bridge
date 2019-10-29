@@ -25,6 +25,10 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
 	app.post("/contacts", controller.createContact);
 	app.put("/contacts/:id", controller.updateContact);
 	app.delete("/contacts/:id", controller.deleteContact);
+	app.get("/calendar", controller.getCalendarEvents);
+	app.post("/calendar", controller.createCalendarEvent);
+	app.put("/calendar/:id", controller.updateCalendarEvent);
+	app.delete("/calendar/:id", controller.deleteCalendarEvent);
 	app.post("/events/calls", controller.handleCallEvent);
 	app.post("/events/connected", controller.handleConnectedEvent);
 	app.get("/health", controller.getHealth);
