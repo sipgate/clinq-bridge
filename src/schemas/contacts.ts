@@ -1,5 +1,3 @@
-// tslint:disable
-
 export const contactsSchema = {
 	title: "Contacts",
 	type: "array",

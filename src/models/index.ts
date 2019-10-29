@@ -1,5 +1,6 @@
 export * from "./adapter.model";
 export * from "./bridge-request.model";
+export * from "./calendar-event.model";
 export * from "./call-direction.enum";
 export * from "./call-event.model";
 export * from "./channel.model";

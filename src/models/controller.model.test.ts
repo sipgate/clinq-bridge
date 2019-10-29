@@ -3,6 +3,7 @@ import { createRequest, createResponse, MockRequest, MockResponse } from "node-m
 import { Contact, Controller } from ".";
 import { MockCache } from "../cache/mock-cache";
 import { BridgeRequest } from "./bridge-request.model";
+import { CalendarEvent } from "./calendar-event.model";
 import { PhoneNumberLabel } from "./contact.model";
 
 const contactsMock: Contact[] = [
@@ -21,6 +22,12 @@ const contactsMock: Contact[] = [
 				phoneNumber: "+4915799912345"
 			}
 		]
+	}
+];
+
+const calendarEventsMock: CalendarEvent[] = [
+	{
+		id: "abc123"
 	}
 ];
 
@@ -121,6 +128,53 @@ describe("getContacts", () => {
 		);
 
 		await controller.getContacts(request, response, next);
+
+		expect(next).toBeCalledWith(ERROR_MESSAGE);
+	});
+});
+
+describe("getCalendarEvents", () => {
+	let request: MockRequest<BridgeRequest>;
+	let response: MockResponse<Response>;
+	let next: jest.Mock;
+
+	beforeEach(() => {
+		request = createRequest({
+			providerConfig: {
+				apiKey: "a1b2c3",
+				apiUrl: "http://example.com",
+				locale: "de_DE"
+			}
+		});
+		response = createResponse();
+		next = jest.fn();
+	});
+
+	it("should handle calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				getCalendarEvents: () => Promise.resolve(calendarEventsMock)
+			},
+			new MockCache()
+		);
+
+		await controller.getCalendarEvents(request, response, next);
+
+		const data: CalendarEvent[] = response._getData();
+
+		expect(next).not.toBeCalled();
+		expect(data).toEqual(calendarEventsMock);
+	});
+
+	it("should handle an error when retrieving calendar events", async () => {
+		const controller: Controller = new Controller(
+			{
+				getCalendarEvents: () => Promise.reject(ERROR_MESSAGE)
+			},
+			new MockCache()
+		);
+
+		await controller.getCalendarEvents(request, response, next);
 
 		expect(next).toBeCalledWith(ERROR_MESSAGE);
 	});

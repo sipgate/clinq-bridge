@@ -2,11 +2,13 @@ import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
 import { Adapter, CallEvent, Contact, ContactCache, ContactTemplate } from ".";
+import { calendarEventsSchema } from "../schemas/calendarEvents";
 import { contactsSchema } from "../schemas/contacts";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
 import { validate } from "../util/validate";
 import { BridgeRequest } from "./bridge-request.model";
+import { CalendarEvent } from "./calendar-event.model";
 import { ContactUpdate } from "./contact.model";
 import { ServerError } from "./server-error.model";
 
@@ -40,6 +42,7 @@ export class Controller {
 		this.createContact = this.createContact.bind(this);
 		this.updateContact = this.updateContact.bind(this);
 		this.deleteContact = this.deleteContact.bind(this);
+		this.getCalendarEvents = this.getCalendarEvents.bind(this);
 		this.handleCallEvent = this.handleCallEvent.bind(this);
 		this.handleConnectedEvent = this.handleConnectedEvent.bind(this);
 		this.getHealth = this.getHealth.bind(this);
@@ -52,7 +55,7 @@ export class Controller {
 		try {
 			const fetcherPromise = this.contactCache.get(apiKey, async () => {
 				if (!this.adapter.getContacts) {
-					throw new ServerError(501, "Creating contacts is not implemented");
+					throw new ServerError(501, "Fetching contacts is not implemented");
 				}
 
 				if (!req.providerConfig) {
@@ -175,6 +178,34 @@ export class Controller {
 				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
 				await this.contactCache.set(apiKey, updatedCache);
 			}
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async getCalendarEvents(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
+		const { providerConfig: { apiKey = "" } = {} } = req;
+		try {
+			if (!this.adapter.getCalendarEvents) {
+				throw new ServerError(501, "Fetching calendar events is not implemented");
+			}
+
+			if (!req.providerConfig) {
+				console.error("Missing config parameters");
+				throw new ServerError(400, "Missing config parameters");
+			}
+
+			console.log(`Fetching calendar events for key "${anonymizeKey(apiKey)}"`);
+
+			const fetchedCalendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig);
+			const valid = validate(this.ajv, calendarEventsSchema, fetchedCalendarEvents);
+			if (!valid) {
+				console.error("Invalid calendar events provided by adapter", this.ajv.errorsText());
+				throw new ServerError(400, "Invalid calendar events provided by adapter");
+			}
+
+			console.log(`Found ${fetchedCalendarEvents.length} events for key "${anonymizeKey(apiKey)}"`);
+			res.send(fetchedCalendarEvents);
 		} catch (error) {
 			next(error);
 		}
