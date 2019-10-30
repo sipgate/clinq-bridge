@@ -1,12 +1,21 @@
 import { Request } from "express";
-import { CalendarEvent, CalendarEventTemplate, CallEvent, Config, Contact, ContactTemplate, ContactUpdate } from ".";
+import {
+	CalendarEvent,
+	CalendarEventTemplate,
+	CalendarFilterOptions,
+	CallEvent,
+	Config,
+	Contact,
+	ContactTemplate,
+	ContactUpdate
+} from ".";
 
 export interface Adapter {
 	getContacts?: (config: Config) => Promise<Contact[]>;
 	createContact?: (config: Config, contact: ContactTemplate) => Promise<Contact>;
 	updateContact?: (config: Config, id: string, contact: ContactUpdate) => Promise<Contact>;
 	deleteContact?: (config: Config, id: string) => Promise<void>;
-	getCalendarEvents?: (config: Config) => Promise<CalendarEvent[]>;
+	getCalendarEvents?: (config: Config, options: CalendarFilterOptions) => Promise<CalendarEvent[]>;
 	createCalendarEvent?: (config: Config, event: CalendarEventTemplate) => Promise<CalendarEvent>;
 	updateCalendarEvent?: (config: Config, id: string, event: CalendarEventTemplate) => Promise<CalendarEvent>;
 	deleteCalendarEvent?: (config: Config, id: string) => Promise<void>;

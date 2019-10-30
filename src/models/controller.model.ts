@@ -193,7 +193,10 @@ export class Controller {
 	}
 
 	public async getCalendarEvents(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
-		const { providerConfig: { apiKey = "" } = {} } = req;
+		const {
+			providerConfig: { apiKey = "" } = {},
+			query: { start, end }
+		} = req;
 		try {
 			if (!this.adapter.getCalendarEvents) {
 				throw new ServerError(501, "Fetching calendar events is not implemented");
@@ -206,7 +209,11 @@ export class Controller {
 
 			console.log(`Fetching calendar events for key "${anonymizeKey(apiKey)}"`);
 
-			const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig);
+			const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig, {
+				start,
+				end
+			});
+
 			const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
 			if (!valid) {
 				console.error("Invalid calendar events provided by adapter", this.ajv.errorsText());
