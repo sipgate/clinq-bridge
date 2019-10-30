@@ -210,8 +210,8 @@ export class Controller {
 			console.log(`Fetching calendar events for key "${anonymizeKey(apiKey)}"`);
 
 			const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(req.providerConfig, {
-				start,
-				end
+				start: start ? Number(start) : undefined,
+				end: start ? Number(end) : undefined
 			});
 
 			const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
