@@ -2,13 +2,6 @@ import { Contact, ContactCache } from "../models";
 import { StorageAdapter } from "../models/storage-adapter.model";
 import { anonymizeKey } from "../util/anonymize-key";
 
-const CACHE_REFRESH_INTERVAL_MS_DEFAULT: number = 10 * 60 * 1000; // 10 minutes
-
-const { CACHE_REFRESH_INTERVAL } = process.env;
-const CACHE_REFRESH_INTERVAL_MS: number = CACHE_REFRESH_INTERVAL
-	? Math.max(Number(CACHE_REFRESH_INTERVAL), 1) * 1000
-	: CACHE_REFRESH_INTERVAL_MS_DEFAULT;
-
 enum CacheItemStateType {
 	CACHED = "CACHED",
 	FETCHING = "FETCHING"
@@ -28,11 +21,18 @@ type CacheItemState = CacheItemStateCached | CacheItemStateFetching;
 export class StorageCache implements ContactCache {
 	private storage: StorageAdapter<Contact[]>;
 	private cacheItemStates: Map<string, CacheItemState>;
+	private cacheRefreshIntervalMs = 10 * 60 * 1000; // 10 minutes
 
 	constructor(storageAdapter: StorageAdapter<Contact[]>) {
 		this.storage = storageAdapter;
 		this.cacheItemStates = new Map<string, CacheItemState>();
-		console.log(`Initialized storage cache with maximum refresh interval of ${CACHE_REFRESH_INTERVAL_MS / 1000}s.`);
+
+		const { CACHE_REFRESH_INTERVAL } = process.env;
+		if (CACHE_REFRESH_INTERVAL) {
+			this.cacheRefreshIntervalMs = Math.max(Number(CACHE_REFRESH_INTERVAL), 1) * 1000;
+		}
+
+		console.log(`Initialized storage cache with maximum refresh interval of ${this.cacheRefreshIntervalMs / 1000}s.`);
 	}
 
 	public async get(key: string, getFreshValue?: (key: string) => Promise<Contact[] | null>): Promise<Contact[] | null> {
@@ -48,7 +48,7 @@ export class StorageCache implements ContactCache {
 				const isValueStale: boolean = Boolean(
 					cacheItemState &&
 						cacheItemState.state === CacheItemStateType.CACHED &&
-						now > cacheItemState.updated + CACHE_REFRESH_INTERVAL_MS
+						now > cacheItemState.updated + this.cacheRefreshIntervalMs
 				);
 
 				const isValueNotCached: boolean = !cacheItemState;

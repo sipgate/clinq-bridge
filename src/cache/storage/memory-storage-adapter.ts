@@ -2,20 +2,20 @@ import * as LRU from "lru-cache";
 import { StorageAdapter } from "../../models/storage-adapter.model";
 import sizeof from "../../util/sizeof";
 
-const { MEMORY_CACHE_TTL_MS } = process.env;
-const CACHE_TTL_MS: number = Number(MEMORY_CACHE_TTL_MS) || 60 * 60 * 24 * 30 * 1000; // 30 days
-const MAX_CACHE_SIZE_BYTES: number = 400 * 1024 * 1024; // 400mb
-
 export class MemoryStorageAdapter<T> implements StorageAdapter<T> {
 	private cache: LRU<string, T>;
 
 	constructor() {
+		const { MEMORY_CACHE_TTL_MS } = process.env;
+		const cacheTtlMs: number = Number(MEMORY_CACHE_TTL_MS) || 60 * 60 * 24 * 30 * 1000; // 30 days
+		const maxCacheSizeBytes: number = 400 * 1024 * 1024; // 400mb
+
 		this.cache = new LRU({
-			max: MAX_CACHE_SIZE_BYTES,
-			maxAge: CACHE_TTL_MS,
+			max: maxCacheSizeBytes,
+			maxAge: cacheTtlMs,
 			length: sizeof
 		});
-		console.log(`Initialized Memory storage with ${CACHE_TTL_MS}ms ttl.`);
+		console.log(`Initialized Memory storage with ${cacheTtlMs}ms ttl.`);
 	}
 
 	public async get(key: string): Promise<T | null> {

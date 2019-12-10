@@ -1,7 +1,8 @@
 import { Response } from "express";
 import { createRequest, createResponse, MockRequest, MockResponse } from "node-mocks-http";
 import { CalendarEvent, Contact, Controller } from ".";
-import { MockCache } from "../cache/mock-cache";
+import { StorageCache } from "../cache";
+import { MemoryStorageAdapter } from "../cache/storage";
 import { BridgeRequest } from "./bridge-request.model";
 import { PhoneNumberLabel } from "./contact.model";
 
@@ -76,7 +77,7 @@ describe("getContacts", () => {
 			{
 				getContacts: () => Promise.resolve(contactsMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getContacts(request, response, next);
@@ -92,7 +93,7 @@ describe("getContacts", () => {
 			{
 				getContacts: () => Promise.resolve(contactsMinimumMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getContacts(request, response, next);
@@ -110,7 +111,7 @@ describe("getContacts", () => {
 			{
 				getContacts: () => Promise.resolve(contactsBrokenMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getContacts(request, response, next);
@@ -126,7 +127,7 @@ describe("getContacts", () => {
 			{
 				getContacts: () => Promise.reject(ERROR_MESSAGE)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getContacts(request, response, next);
@@ -157,7 +158,7 @@ describe("getCalendarEvents", () => {
 			{
 				getCalendarEvents: () => Promise.resolve([calendarEventMock])
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getCalendarEvents(request, response, next);
@@ -175,7 +176,7 @@ describe("getCalendarEvents", () => {
 			{
 				getCalendarEvents: () => Promise.resolve(calendarEventsBrokenMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getCalendarEvents(request, response, next);
@@ -188,7 +189,7 @@ describe("getCalendarEvents", () => {
 			{
 				getCalendarEvents: () => Promise.reject(ERROR_MESSAGE)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getCalendarEvents(request, response, next);
@@ -219,7 +220,7 @@ describe("createCalendarEvent", () => {
 			{
 				createCalendarEvent: () => Promise.resolve(calendarEventMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.createCalendarEvent(request, response, next);
@@ -237,7 +238,7 @@ describe("createCalendarEvent", () => {
 			{
 				createCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.createCalendarEvent(request, response, next);
@@ -250,7 +251,7 @@ describe("createCalendarEvent", () => {
 			{
 				createCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.createCalendarEvent(request, response, next);
@@ -281,7 +282,7 @@ describe("updateCalendarEvent", () => {
 			{
 				updateCalendarEvent: () => Promise.resolve(calendarEventMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.updateCalendarEvent(request, response, next);
@@ -299,7 +300,7 @@ describe("updateCalendarEvent", () => {
 			{
 				updateCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.updateCalendarEvent(request, response, next);
@@ -312,7 +313,7 @@ describe("updateCalendarEvent", () => {
 			{
 				updateCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.updateCalendarEvent(request, response, next);
@@ -343,7 +344,7 @@ describe("deleteCalendarEvent", () => {
 			{
 				deleteCalendarEvent: () => Promise.resolve()
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.deleteCalendarEvent(request, response, next);
@@ -357,7 +358,7 @@ describe("deleteCalendarEvent", () => {
 			{
 				deleteCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.deleteCalendarEvent(request, response, next);
@@ -382,7 +383,7 @@ describe("getHealth", () => {
 			{
 				getContacts: () => Promise.resolve(contactsMock)
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getHealth(request, response, next);
@@ -399,7 +400,7 @@ describe("getHealth", () => {
 				getContacts: () => Promise.resolve(contactsMock),
 				getHealth: getHealthMock
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getHealth(request, response, next);
@@ -415,7 +416,7 @@ describe("getHealth", () => {
 				getContacts: () => Promise.reject(),
 				getHealth: () => Promise.reject()
 			},
-			new MockCache()
+			new StorageCache(new MemoryStorageAdapter())
 		);
 
 		await controller.getHealth(request, response, next);

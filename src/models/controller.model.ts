@@ -21,8 +21,6 @@ import { validate } from "../util/validate";
 const APP_WEB_URL: string = "https://www.clinq.app/settings/integrations/oauth/callback";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
-const oAuthIdentifier: string = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
-
 function sanitizeContact(contact: Contact, locale: string): Contact {
 	const result: Contact = {
 		...contact,
@@ -380,6 +378,9 @@ export class Controller {
 			}
 
 			const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req);
+
+			const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
+
 			const params = stringify({ name: oAuthIdentifier, key: apiKey, url: apiUrl });
 
 			res.redirect(`${APP_WEB_URL}?${params}`);
