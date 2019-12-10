@@ -40,17 +40,4 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
 	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
-export {
-	Adapter,
-	CallDirection,
-	CallEvent,
-	Channel,
-	Config,
-	Contact,
-	ContactTemplate,
-	ContactUpdate,
-	PhoneNumber,
-	PhoneNumberLabel,
-	ServerError,
-	User
-} from "./models";
+export * from "./models";
