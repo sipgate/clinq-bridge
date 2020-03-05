@@ -1,6 +1,6 @@
 {
 	"name": "@clinq/bridge",
-	"version": "11.1.1",
+	"version": "11.1.2",
 	"description": "CLINQ Bridge Framework",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -31,10 +31,10 @@
 	"scripts": {
 		"test": "jest",
 		"compile": "tsc",
-		"build": "yarn lint && yarn test && rimraf dist && yarn compile",
+		"build": "npm run lint && npm test && rimraf dist && npm run compile",
 		"lint": "tslint 'src/**/*.ts'",
 		"precommit": "lint-staged",
-		"prepublishOnly": "yarn build"
+		"prepublishOnly": "npm run build"
 	},
 	"lint-staged": {
 		"*.{ts}": [
