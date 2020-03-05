@@ -372,6 +372,7 @@ export class Controller {
 	}
 
 	public async oAuth2Callback(req: Request, res: Response, next: NextFunction): Promise<void> {
+		const webUrl = process.env.WEB_URL || APP_WEB_URL;
 		try {
 			if (!this.adapter.handleOAuth2Callback) {
 				throw new ServerError(501, "OAuth2 flow not implemented");
@@ -383,10 +384,10 @@ export class Controller {
 
 			const params = stringify({ name: oAuthIdentifier, key: apiKey, url: apiUrl });
 
-			res.redirect(`${APP_WEB_URL}?${params}`);
+			res.redirect(`${webUrl}?${params}`);
 		} catch (error) {
 			console.error("Unable to save OAuth2 token. Cause:", error.message);
-			res.redirect(APP_WEB_URL);
+			res.redirect(webUrl);
 		}
 	}
 }
