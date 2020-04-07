@@ -45,27 +45,27 @@ The minimum adapter implements the `getContacts` method:
 
 ```js
 const bridge = require("@clinq/bridge");
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 const { ServerError } = bridge;
 
 const adapter = {
-  getContacts: async ({ apiKey, apiUrl }) => {
-    // Fetch contacts using apiKey and apiUrl or throw on error
-    const response = await fetch(`${apiUrl}/api/contacts`, {
-      headers: { Authorization: `Bearer ${apiKey}` }
-    });
-    if (response.status === 401) {
-      throw new ServerError(401, "Unauthorized");
-    }
-    if (response.ok) {
-      const contacts = await response.json();
-      // TODO: Convert contact to the structure above
-      return contacts;
-    } else {
-      throw new ServerError(500, "Could not fetch contacts");
-    }
-  }
+	getContacts: async ({ apiKey, apiUrl }) => {
+		// Fetch contacts using apiKey and apiUrl or throw on error
+		const response = await fetch(`${apiUrl}/api/contacts`, {
+			headers: { Authorization: `Bearer ${apiKey}` }
+		});
+		if (response.status === 401) {
+			throw new ServerError(401, "Unauthorized");
+		}
+		if (response.ok) {
+			const contacts = await response.json();
+			// TODO: Convert contact to the structure above
+			return contacts;
+		} else {
+			throw new ServerError(500, "Could not fetch contacts");
+		}
+	}
 };
 
 bridge.start(adapter);
@@ -75,6 +75,6 @@ bridge.start(adapter);
 
 The CLINQ Bridge support configuration through the following environment variables
 
-* `REDIS_URL`: URL of a Redis instance to cache responses
-* `USE_MEMORY_CACHE`: Use in-memory LRU storage to cache responses (only if no Redis is configured)
-* `CACHE_REFRESH_INTERVAL`: Time a contact in cache is not refreshed (in seconds), only used if redis or memory cache is active
+- `REDIS_URL`: URL of a Redis instance to cache responses, otherwise memory cache will be used
+- `CACHE_DISABLED`: Disable caching
+- `CACHE_REFRESH_INTERVAL`: Time a contact in cache is not refreshed (in seconds), only used if redis or memory cache is active

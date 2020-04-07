@@ -4,7 +4,7 @@ import * as cors from "cors";
 import * as express from "express";
 import { Server } from "http";
 import { errorHandlerMiddleware, extractHeaderMiddleware } from "./middlewares";
-import { Adapter, ContactCache, Controller } from "./models";
+import { Adapter, Controller } from "./models";
 import { getContactCache } from "./util/getContactCache";
 
 const settingsPort: number = Number(process.env.PORT) || 8080;
@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(extractHeaderMiddleware);
 
 export function start(adapter: Adapter, port: number = settingsPort): Server {
-	const cache: ContactCache = getContactCache();
+	const cache = getContactCache();
 
 	const controller: Controller = new Controller(adapter, cache);
 

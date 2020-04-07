@@ -34,10 +34,10 @@ function sanitizeContact(contact: Contact, locale: string): Contact {
 
 export class Controller {
 	private adapter: Adapter;
-	private contactCache: ContactCache;
+	private contactCache: ContactCache | null;
 	private ajv: Ajv.Ajv;
 
-	constructor(adapter: Adapter, contactCache: ContactCache) {
+	constructor(adapter: Adapter, contactCache: ContactCache | null) {
 		this.adapter = adapter;
 		this.contactCache = contactCache;
 		this.ajv = new Ajv();
@@ -60,7 +60,7 @@ export class Controller {
 	public async getContacts(req: BridgeRequest, res: Response, next: NextFunction): Promise<void> {
 		const { providerConfig: { apiKey = "", locale = "" } = {} } = req;
 		try {
-			const fetcherPromise = this.contactCache.get(apiKey, async () => {
+			const fetchContacts = async () => {
 				if (!this.adapter.getContacts) {
 					throw new ServerError(501, "Fetching contacts is not implemented");
 				}
@@ -76,13 +76,20 @@ export class Controller {
 				return validate(this.ajv, contactsSchema, fetchedContacts)
 					? fetchedContacts.map(contact => sanitizeContact(contact, locale))
 					: null;
-			});
+			};
+
+			const fetcherPromise = this.contactCache ? this.contactCache.get(apiKey, fetchContacts) : fetchContacts();
+
 			const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
 				setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
 			);
+
 			const contacts = await Promise.race([fetcherPromise, timeoutPromise]);
+
 			const responseContacts: Contact[] = contacts || [];
+
 			console.log(`Found ${responseContacts.length} cached contacts for key "${anonymizeKey(apiKey)}"`);
+
 			res.send(responseContacts);
 		} catch (error) {
 			next(error);
@@ -114,9 +121,11 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
-			const cached = await this.contactCache.get(apiKey);
-			if (cached) {
-				await this.contactCache.set(apiKey, [...cached, sanitizedContact]);
+			if (this.contactCache) {
+				const cached = await this.contactCache.get(apiKey);
+				if (cached) {
+					await this.contactCache.set(apiKey, [...cached, sanitizedContact]);
+				}
 			}
 		} catch (error) {
 			next(error);
@@ -151,12 +160,14 @@ export class Controller {
 			const sanitizedContact: Contact = sanitizeContact(contact, locale);
 			res.send(sanitizedContact);
 
-			const cachedContacts = await this.contactCache.get(apiKey);
-			if (cachedContacts) {
-				const updatedCache: Contact[] = cachedContacts.map(entry =>
-					entry.id === sanitizedContact.id ? sanitizedContact : entry
-				);
-				await this.contactCache.set(apiKey, updatedCache);
+			if (this.contactCache) {
+				const cachedContacts = await this.contactCache.get(apiKey);
+				if (cachedContacts) {
+					const updatedCache: Contact[] = cachedContacts.map(entry =>
+						entry.id === sanitizedContact.id ? sanitizedContact : entry
+					);
+					await this.contactCache.set(apiKey, updatedCache);
+				}
 			}
 		} catch (error) {
 			next(error);
@@ -180,10 +191,12 @@ export class Controller {
 			await this.adapter.deleteContact(req.providerConfig, contactId);
 			res.status(200).send();
 
-			const cached = await this.contactCache.get(apiKey);
-			if (cached) {
-				const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
-				await this.contactCache.set(apiKey, updatedCache);
+			if (this.contactCache) {
+				const cached = await this.contactCache.get(apiKey);
+				if (cached) {
+					const updatedCache: Contact[] = cached.filter(entry => entry.id !== contactId);
+					await this.contactCache.set(apiKey, updatedCache);
+				}
 			}
 		} catch (error) {
 			next(error);
