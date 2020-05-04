@@ -17,27 +17,27 @@ app.use(bodyParser.json());
 app.use(extractHeaderMiddleware);
 
 export function start(adapter: Adapter, port: number = settingsPort): Server {
-	const cache = getContactCache();
+  const cache = getContactCache();
 
-	const controller: Controller = new Controller(adapter, cache);
+  const controller: Controller = new Controller(adapter, cache);
 
-	app.get("/contacts", controller.getContacts);
-	app.post("/contacts", controller.createContact);
-	app.put("/contacts/:id", controller.updateContact);
-	app.delete("/contacts/:id", controller.deleteContact);
-	app.get("/calendar", controller.getCalendarEvents);
-	app.post("/calendar", controller.createCalendarEvent);
-	app.put("/calendar/:id", controller.updateCalendarEvent);
-	app.delete("/calendar/:id", controller.deleteCalendarEvent);
-	app.post("/events/calls", controller.handleCallEvent);
-	app.post("/events/connected", controller.handleConnectedEvent);
-	app.get("/health", controller.getHealth);
-	app.get("/oauth2/redirect", controller.oAuth2Redirect);
-	app.get("/oauth2/callback", controller.oAuth2Callback);
+  app.get("/contacts", controller.getContacts);
+  app.post("/contacts", controller.createContact);
+  app.put("/contacts/:id", controller.updateContact);
+  app.delete("/contacts/:id", controller.deleteContact);
+  app.get("/calendar", controller.getCalendarEvents);
+  app.post("/calendar", controller.createCalendarEvent);
+  app.put("/calendar/:id", controller.updateCalendarEvent);
+  app.delete("/calendar/:id", controller.deleteCalendarEvent);
+  app.post("/events/calls", controller.handleCallEvent);
+  app.post("/events/connected", controller.handleConnectedEvent);
+  app.get("/health", controller.getHealth);
+  app.get("/oauth2/redirect", controller.oAuth2Redirect);
+  app.get("/oauth2/callback", controller.oAuth2Callback);
 
-	app.use(errorHandlerMiddleware);
+  app.use(errorHandlerMiddleware);
 
-	return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
+  return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
 }
 
 export * from "./models";

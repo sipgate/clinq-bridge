@@ -1,4 +1,4 @@
 export enum CallDirection {
-	IN = "IN",
-	OUT = "OUT"
+  IN = "IN",
+  OUT = "OUT"
 }

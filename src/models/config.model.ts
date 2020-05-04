@@ -1,5 +1,5 @@
 export interface Config {
-	apiKey: string;
-	apiUrl: string;
-	locale: string;
+  apiKey: string;
+  apiUrl: string;
+  locale: string;
 }

@@ -5,9 +5,7 @@ It provides a unified way to connect the CLINQ web application to any contact pr
 
 ## Bootstrapping a new bridge
 
-If you want to bootstrap a new CLINQ Bridge you can use this repository:
-
-[clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
+If you want to bootstrap a new CLINQ Bridge you can use this repository: [clinq-bridge-boilerplate](https://github.com/sipgate/clinq-bridge-boilerplate)
 
 ## Installation
 
@@ -50,22 +48,24 @@ const fetch = require("node-fetch");
 const { ServerError } = bridge;
 
 const adapter = {
-	getContacts: async ({ apiKey, apiUrl }) => {
-		// Fetch contacts using apiKey and apiUrl or throw on error
-		const response = await fetch(`${apiUrl}/api/contacts`, {
-			headers: { Authorization: `Bearer ${apiKey}` }
-		});
-		if (response.status === 401) {
-			throw new ServerError(401, "Unauthorized");
-		}
-		if (response.ok) {
-			const contacts = await response.json();
-			// TODO: Convert contact to the structure above
-			return contacts;
-		} else {
-			throw new ServerError(500, "Could not fetch contacts");
-		}
-	}
+  getContacts: async ({ apiKey, apiUrl }) => {
+    // Fetch contacts using apiKey and apiUrl or throw on error
+    const response = await fetch(`${apiUrl}/api/contacts`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+
+    if (response.status === 401) {
+      throw new ServerError(401, "Unauthorized");
+    }
+
+    if (response.ok) {
+      const contacts = await response.json();
+      // TODO: Convert contact to the structure above
+      return contacts;
+    } else {
+      throw new ServerError(500, "Could not fetch contacts");
+    }
+  },
 };
 
 bridge.start(adapter);
