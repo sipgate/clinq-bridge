@@ -1,4 +1,4 @@
 export interface CalendarFilterOptions {
-  start?: number;
-  end?: number;
+  start: number;
+  end: number;
 }

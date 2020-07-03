@@ -11,12 +11,13 @@ import {
   ContactCache,
   ContactTemplate,
   ContactUpdate,
-  ServerError
+  ServerError,
 } from ".";
 import { calendarEventsSchema, contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
 import { convertPhoneNumberToE164 } from "../util/phone-number-utils";
 import { validate } from "../util/validate";
+import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
@@ -25,10 +26,10 @@ const CONTACT_FETCH_TIMEOUT: number = 3000;
 function sanitizeContact(contact: Contact, locale: string): Contact {
   const result: Contact = {
     ...contact,
-    phoneNumbers: contact.phoneNumbers.map(phoneNumber => ({
+    phoneNumbers: contact.phoneNumbers.map((phoneNumber) => ({
       ...phoneNumber,
-      phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber, locale)
-    }))
+      phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber, locale),
+    })),
   };
   return result;
 }
@@ -81,7 +82,7 @@ export class Controller {
           req.providerConfig
         );
         return validate(this.ajv, contactsSchema, fetchedContacts)
-          ? fetchedContacts.map(contact => sanitizeContact(contact, locale))
+          ? fetchedContacts.map((contact) => sanitizeContact(contact, locale))
           : null;
       };
 
@@ -89,7 +90,7 @@ export class Controller {
         ? this.contactCache.get(apiKey, fetchContacts)
         : fetchContacts();
 
-      const timeoutPromise: Promise<Contact[]> = new Promise(resolve =>
+      const timeoutPromise: Promise<Contact[]> = new Promise((resolve) =>
         setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
       );
 
@@ -193,7 +194,7 @@ export class Controller {
       if (this.contactCache) {
         const cachedContacts = await this.contactCache.get(apiKey);
         if (cachedContacts) {
-          const updatedCache: Contact[] = cachedContacts.map(entry =>
+          const updatedCache: Contact[] = cachedContacts.map((entry) =>
             entry.id === sanitizedContact.id ? sanitizedContact : entry
           );
           await this.contactCache.set(apiKey, updatedCache);
@@ -229,7 +230,7 @@ export class Controller {
         const cached = await this.contactCache.get(apiKey);
         if (cached) {
           const updatedCache: Contact[] = cached.filter(
-            entry => entry.id !== contactId
+            (entry) => entry.id !== contactId
           );
           await this.contactCache.set(apiKey, updatedCache);
         }
@@ -246,7 +247,7 @@ export class Controller {
   ): Promise<void> {
     const {
       providerConfig: { apiKey = "" } = {},
-      query: { start, end }
+      query: { start, end },
     } = req;
     try {
       if (!this.adapter.getCalendarEvents) {
@@ -263,12 +264,17 @@ export class Controller {
 
       console.log(`Fetching calendar events for key "${anonymizeKey(apiKey)}"`);
 
+      const filter: CalendarFilterOptions | null =
+        typeof start === "string" && typeof end === "string"
+          ? {
+              start: Number(start),
+              end: Number(end),
+            }
+          : null;
+
       const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(
         req.providerConfig,
-        {
-          start: start ? Number(start) : undefined,
-          end: start ? Number(end) : undefined
-        }
+        filter
       );
 
       const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
@@ -513,7 +519,7 @@ export class Controller {
       const params = stringify({
         name: oAuthIdentifier,
         key: apiKey,
-        url: apiUrl
+        url: apiUrl,
       });
 
       res.redirect(`${webUrl}?${params}`);

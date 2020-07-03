@@ -7,7 +7,7 @@ import {
   Config,
   Contact,
   ContactTemplate,
-  ContactUpdate
+  ContactUpdate,
 } from ".";
 
 export interface Adapter {
@@ -24,7 +24,7 @@ export interface Adapter {
   deleteContact?: (config: Config, id: string) => Promise<void>;
   getCalendarEvents?: (
     config: Config,
-    options: CalendarFilterOptions
+    options?: CalendarFilterOptions | null
   ) => Promise<CalendarEvent[]>;
   createCalendarEvent?: (
     config: Config,
