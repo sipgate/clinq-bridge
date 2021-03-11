@@ -35,7 +35,8 @@
     "lint": "tslint 'src/**/*.ts'",
     "precommit": "lint-staged",
     "prepublishOnly": "npm run build",
-    "format": "prettier --write '**/*.ts'"
+    "format": "prettier --write '**/*.ts'",
+    "link": "npm link"
   },
   "lint-staged": {
     "*.{ts}": [

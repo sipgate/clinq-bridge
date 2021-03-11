@@ -139,7 +139,7 @@ export class StorageCache implements ContactCache {
     } catch (error) {
       console.info(
         `Error while refreshing value for ${anonymizeKey(key)}:`,
-        error.message
+        error
       );
       this.cacheItemStates.delete(key);
       throw error;
