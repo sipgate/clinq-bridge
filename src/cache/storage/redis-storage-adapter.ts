@@ -31,6 +31,9 @@ export class RedisStorageAdapter<T> implements StorageAdapter<T> {
   public async get(key: string): Promise<T | null> {
     try {
       const value = await this.client.get(key);
+      if(!value) {
+        return null;
+      }
       const decompressed = await inflate(Buffer.from(value, "base64"));
       return JSON.parse(decompressed.toString());
     } catch {

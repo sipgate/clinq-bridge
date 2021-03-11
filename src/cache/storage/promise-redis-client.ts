@@ -3,7 +3,7 @@ import { promisify } from "util";
 
 export class PromiseRedisClient {
   public del: (key: string) => Promise<number>;
-  public get: (key: string) => Promise<string>;
+  public get: (key: string) => Promise<string | null>;
   public set: (
     key: string,
     value: string,
