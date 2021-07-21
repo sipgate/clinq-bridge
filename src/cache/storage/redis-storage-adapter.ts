@@ -17,12 +17,14 @@ export class RedisStorageAdapter<T> implements StorageAdapter<T> {
   private client: PromiseRedisClient;
 
   constructor(url: string) {
-    const client: redis.RedisClient = redis.createClient({
-      url
+    const client: redis.RedisClient = redis.createClient(url,{
+      tls:{
+        rejectUnauthorized: false,
+      }
     });
     this.client = new PromiseRedisClient(client);
 
-    console.log(`Initialized Redis storage with URL ${url} .`);
+    console.log(`Initialized Redis storage with URL ${url}`);
     client.on("error", error => {
       console.warn("Redis error: ", error.message);
     });
