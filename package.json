@@ -32,7 +32,7 @@
     "prepare": "husky install",
     "test": "jest",
     "compile": "tsc",
-    "build": "npm run lint && npm test && rimraf dist && npm run compile",
+    "build": "npm test && rimraf dist && npm run compile",
     "precommit": "lint-staged",
     "prepublishOnly": "npm run build",
     "format": "prettier --write '**/*.ts'",
