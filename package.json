@@ -29,10 +29,10 @@
   ],
   "license": "Apache-2.0",
   "scripts": {
+    "prepare": "husky install",
     "test": "jest",
     "compile": "tsc",
     "build": "npm run lint && npm test && rimraf dist && npm run compile",
-    "lint": "tslint 'src/**/*.ts'",
     "precommit": "lint-staged",
     "prepublishOnly": "npm run build",
     "format": "prettier --write '**/*.ts'",
@@ -41,7 +41,6 @@
   "lint-staged": {
     "*.{ts}": [
       "prettier --write",
-      "tslint",
       "git add"
     ]
   },
@@ -68,15 +67,13 @@
     "@types/lru-cache": "^5.1.0",
     "@types/node": "^13.13.4",
     "@types/redis": "^2.8.18",
-    "husky": "^4.2.5",
+    "husky": "^7.0.2",
     "jest": "^25.5.4",
     "lint-staged": "^10.2.2",
     "node-mocks-http": "^1.8.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "ts-jest": "^25.4.0",
-    "tslint": "^6.1.2",
-    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.8.3"
   },
   "dependencies": {

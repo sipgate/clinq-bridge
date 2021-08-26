@@ -7,8 +7,6 @@ export function errorHandlerMiddleware(
   res: Response,
   next: NextFunction
 ): void {
-  console.error(error);
-
   if (error instanceof ServerError) {
     res.status(error.status).send(error.message);
     return;

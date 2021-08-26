@@ -106,6 +106,7 @@ export class Controller {
 
       res.send(responseContacts);
     } catch (error) {
+      console.error("Could not get contacts:", error.message || "Unknown");
       next(error);
     }
   }
@@ -152,6 +153,7 @@ export class Controller {
         }
       }
     } catch (error) {
+      console.error("Could not create contact:", error.message || "Unknown");
       next(error);
     }
   }
@@ -201,6 +203,7 @@ export class Controller {
         }
       }
     } catch (error) {
+      console.error("Could not update contact:", error.message || "Unknown");
       next(error);
     }
   }
@@ -236,6 +239,7 @@ export class Controller {
         }
       }
     } catch (error) {
+      console.error("Could not delete contact:", error.message || "Unknown");
       next(error);
     }
   }
@@ -296,6 +300,10 @@ export class Controller {
       );
       res.send(calendarEvents);
     } catch (error) {
+      console.error(
+        "Could not get calendar events:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -339,6 +347,10 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
+      console.error(
+        "Could not create calendar event:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -383,6 +395,10 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
+      console.error(
+        "Could not update calendar event:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -410,6 +426,10 @@ export class Controller {
       await this.adapter.deleteCalendarEvent(req.providerConfig, req.params.id);
       res.status(200).send();
     } catch (error) {
+      console.error(
+        "Could not delete calendar event:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -438,6 +458,7 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
+      console.error("Could not handle call event:", error.message || "Unknown");
       next(error);
     }
   }
@@ -466,6 +487,10 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
+      console.error(
+        "Could not handle connected event:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -481,6 +506,7 @@ export class Controller {
       }
       res.sendStatus(200);
     } catch (error) {
+      console.error("Health check failed:", error.message || "Unknown");
       next(error || "Internal Server Error");
     }
   }
@@ -497,6 +523,10 @@ export class Controller {
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl();
       res.send({ redirectUrl });
     } catch (error) {
+      console.error(
+        "Could not get OAuth2 redirect URL:",
+        error.message || "Unknown"
+      );
       next(error);
     }
   }
@@ -524,7 +554,7 @@ export class Controller {
 
       res.redirect(`${webUrl}?${params}`);
     } catch (error) {
-      console.error("Unable to save OAuth2 token. Cause:", error.message);
+      console.error("Unable to save OAuth2 token:", error.message || "Unknown");
       res.redirect(webUrl);
     }
   }

@@ -3,7 +3,7 @@ import {
   createRequest,
   createResponse,
   MockRequest,
-  MockResponse
+  MockResponse,
 } from "node-mocks-http";
 import { CalendarEvent, Contact, Controller } from ".";
 import { StorageCache } from "../cache";
@@ -24,10 +24,10 @@ const contactsMock: Contact[] = [
     phoneNumbers: [
       {
         label: PhoneNumberLabel.MOBILE,
-        phoneNumber: "+4915799912345"
-      }
-    ]
-  }
+        phoneNumber: "+4915799912345",
+      },
+    ],
+  },
 ];
 
 const calendarEventMock: CalendarEvent = {
@@ -36,7 +36,7 @@ const calendarEventMock: CalendarEvent = {
   description: "Awesome event",
   eventUrl: "https://wwww.google.com",
   start: 123456789,
-  end: 123456789
+  end: 123456789,
 };
 
 const contactsMinimumMock: Contact[] = [
@@ -52,10 +52,10 @@ const contactsMinimumMock: Contact[] = [
     phoneNumbers: [
       {
         label: PhoneNumberLabel.WORK,
-        phoneNumber: "+4915799912345"
-      }
-    ]
-  }
+        phoneNumber: "+4915799912345",
+      },
+    ],
+  },
 ];
 
 const ERROR_MESSAGE: string = "Error!";
@@ -70,8 +70,8 @@ describe("getContacts", () => {
       providerConfig: {
         apiKey: "a1b2c3",
         apiUrl: "http://example.com",
-        locale: "de_DE"
-      }
+        locale: "de_DE",
+      },
     });
     response = createResponse();
     next = jest.fn();
@@ -80,7 +80,7 @@ describe("getContacts", () => {
   it("should handle contacts", async () => {
     const controller: Controller = new Controller(
       {
-        getContacts: () => Promise.resolve(contactsMock)
+        getContacts: () => Promise.resolve(contactsMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -96,7 +96,7 @@ describe("getContacts", () => {
   it("should handle contacts with minimum fields", async () => {
     const controller: Controller = new Controller(
       {
-        getContacts: () => Promise.resolve(contactsMinimumMock)
+        getContacts: () => Promise.resolve(contactsMinimumMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -114,7 +114,7 @@ describe("getContacts", () => {
     delete contactsBrokenMock[0].name;
     const controller: Controller = new Controller(
       {
-        getContacts: () => Promise.resolve(contactsBrokenMock)
+        getContacts: () => Promise.resolve(contactsBrokenMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -130,7 +130,7 @@ describe("getContacts", () => {
   it("should handle an error when retrieving contacts", async () => {
     const controller: Controller = new Controller(
       {
-        getContacts: () => Promise.reject(ERROR_MESSAGE)
+        getContacts: () => Promise.reject(ERROR_MESSAGE),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -151,8 +151,8 @@ describe("getCalendarEvents", () => {
       providerConfig: {
         apiKey: "a1b2c3",
         apiUrl: "http://example.com",
-        locale: "de_DE"
-      }
+        locale: "de_DE",
+      },
     });
     response = createResponse();
     next = jest.fn();
@@ -161,7 +161,7 @@ describe("getCalendarEvents", () => {
   it("should handle calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        getCalendarEvents: () => Promise.resolve([calendarEventMock])
+        getCalendarEvents: () => Promise.resolve([calendarEventMock]),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -176,12 +176,12 @@ describe("getCalendarEvents", () => {
 
   it("should handle invalid calendar events", async () => {
     const calendarEventsBrokenMock: CalendarEvent[] = [
-      { ...calendarEventMock }
+      { ...calendarEventMock },
     ];
     delete calendarEventsBrokenMock[0].id;
     const controller: Controller = new Controller(
       {
-        getCalendarEvents: () => Promise.resolve(calendarEventsBrokenMock)
+        getCalendarEvents: () => Promise.resolve(calendarEventsBrokenMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -194,7 +194,7 @@ describe("getCalendarEvents", () => {
   it("should handle an error when retrieving calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        getCalendarEvents: () => Promise.reject(ERROR_MESSAGE)
+        getCalendarEvents: () => Promise.reject(ERROR_MESSAGE),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -215,8 +215,8 @@ describe("createCalendarEvent", () => {
       providerConfig: {
         apiKey: "a1b2c3",
         apiUrl: "http://example.com",
-        locale: "de_DE"
-      }
+        locale: "de_DE",
+      },
     });
     response = createResponse();
     next = jest.fn();
@@ -225,7 +225,7 @@ describe("createCalendarEvent", () => {
   it("should create calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        createCalendarEvent: () => Promise.resolve(calendarEventMock)
+        createCalendarEvent: () => Promise.resolve(calendarEventMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -243,7 +243,7 @@ describe("createCalendarEvent", () => {
     delete calendarEventBrokenMock.id;
     const controller: Controller = new Controller(
       {
-        createCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
+        createCalendarEvent: () => Promise.resolve(calendarEventBrokenMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -256,7 +256,7 @@ describe("createCalendarEvent", () => {
   it("should handle an error when creating calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        createCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+        createCalendarEvent: () => Promise.reject(ERROR_MESSAGE),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -277,8 +277,8 @@ describe("updateCalendarEvent", () => {
       providerConfig: {
         apiKey: "a1b2c3",
         apiUrl: "http://example.com",
-        locale: "de_DE"
-      }
+        locale: "de_DE",
+      },
     });
     response = createResponse();
     next = jest.fn();
@@ -287,7 +287,7 @@ describe("updateCalendarEvent", () => {
   it("should update calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        updateCalendarEvent: () => Promise.resolve(calendarEventMock)
+        updateCalendarEvent: () => Promise.resolve(calendarEventMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -305,7 +305,7 @@ describe("updateCalendarEvent", () => {
     delete calendarEventBrokenMock.id;
     const controller: Controller = new Controller(
       {
-        updateCalendarEvent: () => Promise.resolve(calendarEventBrokenMock)
+        updateCalendarEvent: () => Promise.resolve(calendarEventBrokenMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -318,7 +318,7 @@ describe("updateCalendarEvent", () => {
   it("should handle an error when updating calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        updateCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+        updateCalendarEvent: () => Promise.reject(ERROR_MESSAGE),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -339,8 +339,8 @@ describe("deleteCalendarEvent", () => {
       providerConfig: {
         apiKey: "a1b2c3",
         apiUrl: "http://example.com",
-        locale: "de_DE"
-      }
+        locale: "de_DE",
+      },
     });
     response = createResponse();
     next = jest.fn();
@@ -349,7 +349,7 @@ describe("deleteCalendarEvent", () => {
   it("should delete calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        deleteCalendarEvent: () => Promise.resolve()
+        deleteCalendarEvent: () => Promise.resolve(),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -363,7 +363,7 @@ describe("deleteCalendarEvent", () => {
   it("should handle an error when deleting calendar events", async () => {
     const controller: Controller = new Controller(
       {
-        deleteCalendarEvent: () => Promise.reject(ERROR_MESSAGE)
+        deleteCalendarEvent: () => Promise.reject(ERROR_MESSAGE),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -388,7 +388,7 @@ describe("getHealth", () => {
   it("should implement a default function", async () => {
     const controller: Controller = new Controller(
       {
-        getContacts: () => Promise.resolve(contactsMock)
+        getContacts: () => Promise.resolve(contactsMock),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -405,7 +405,7 @@ describe("getHealth", () => {
     const controller: Controller = new Controller(
       {
         getContacts: () => Promise.resolve(contactsMock),
-        getHealth: getHealthMock
+        getHealth: getHealthMock,
       },
       new StorageCache(new MemoryStorageAdapter())
     );
@@ -421,7 +421,7 @@ describe("getHealth", () => {
     const controller: Controller = new Controller(
       {
         getContacts: () => Promise.reject(),
-        getHealth: () => Promise.reject()
+        getHealth: () => Promise.reject(new Error("Error")),
       },
       new StorageCache(new MemoryStorageAdapter())
     );
