@@ -11,6 +11,7 @@ import {
   ContactCache,
   ContactTemplate,
   ContactUpdate,
+  OAuthURLConfig,
   ServerError,
 } from ".";
 import { calendarEventsSchema, contactsSchema } from "../schemas";
@@ -520,7 +521,11 @@ export class Controller {
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
-      const redirectUrl = await this.adapter.getOAuth2RedirectUrl();
+      const urlConfig : OAuthURLConfig = {
+        "organizationId": req.headers["X-CLINQ-OrganizationId"] as string || "",
+        "userId": req.headers["X-CLINQ-UserId"] as string || ""
+      }
+      const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
     } catch (error) {
       console.error(

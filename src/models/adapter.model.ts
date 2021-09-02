@@ -8,6 +8,7 @@ import {
   Contact,
   ContactTemplate,
   ContactUpdate,
+  OAuthURLConfig,
 } from ".";
 
 export interface Adapter {
@@ -39,7 +40,7 @@ export interface Adapter {
   handleCallEvent?: (config: Config, event: CallEvent) => Promise<void>;
   handleConnectedEvent?: (config: Config) => Promise<void>;
   getHealth?: () => Promise<void>;
-  getOAuth2RedirectUrl?: () => Promise<string>;
+  getOAuth2RedirectUrl?: (urlConfig?: OAuthURLConfig) => Promise<string>;
   handleOAuth2Callback?: (
     req: Request
   ) => Promise<{ apiKey: string; apiUrl: string }>;
