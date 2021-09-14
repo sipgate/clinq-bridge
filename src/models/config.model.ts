@@ -5,6 +5,8 @@ export interface Config {
 }
 
 export interface OAuthURLConfig{
+  apiUrl: string;
   organizationId: string;
   userId: string;
+  key: string;
 }

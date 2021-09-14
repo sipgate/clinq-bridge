@@ -522,8 +522,10 @@ export class Controller {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
       const urlConfig : OAuthURLConfig = {
-        "organizationId": req.headers["X-CLINQ-OrganizationId"] as string || "",
-        "userId": req.headers["X-CLINQ-UserId"] as string || ""
+        organizationId: req.headers["X-CLINQ-ORGANIZATION"] as string || "",
+        userId: req.headers["X-CLINQ-USER"] as string || "",
+        key: req.headers["X-CLINQ-KEY"] as string || "",
+        apiUrl: req.headers["X-CLINQ-APIURL"] as string || ""
       }
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
