@@ -517,7 +517,7 @@ export class Controller {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {uwfd
+    try {
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
