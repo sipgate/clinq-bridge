@@ -517,15 +517,15 @@ export class Controller {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {
+    try {uwfd
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
       const urlConfig : OAuthURLConfig = {
-        organizationId: req.headers["X-CLINQ-ORGANIZATION"] as string || "",
-        userId: req.headers["X-CLINQ-USER"] as string || "",
-        key: req.headers["X-CLINQ-KEY"] as string || "",
-        apiUrl: req.headers["X-CLINQ-APIURL"] as string || ""
+        organizationId: req.header("x-clinq-organization") as string || "",
+        userId: req.header("x-clinq-user") as string || "",
+        key: req.header("x-clinq-key") as string || "",
+        apiUrl: req.header("x-clinq-apiurl") as string || ""
       }
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
