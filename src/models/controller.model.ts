@@ -521,12 +521,12 @@ export class Controller {
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
-      const urlConfig : OAuthURLConfig = {
-        organizationId: req.header("x-clinq-organization") as string || "",
-        userId: req.header("x-clinq-user") as string || "",
-        key: req.header("x-clinq-key") as string || "",
-        apiUrl: req.header("x-clinq-apiurl") as string || ""
-      }
+      const urlConfig: OAuthURLConfig = {
+        organizationId: (req.header("x-clinq-organization") as string) || "",
+        userId: (req.header("x-clinq-user") as string) || "",
+        key: (req.header("x-clinq-key") as string) || "",
+        apiUrl: (req.header("x-clinq-apiurl") as string) || "",
+      };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
     } catch (error) {
