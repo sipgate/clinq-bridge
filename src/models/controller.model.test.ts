@@ -374,6 +374,59 @@ describe("deleteCalendarEvent", () => {
   });
 });
 
+describe("getOAuth2RedirectUrl", () => {
+  let request: MockRequest<BridgeRequest>;
+  let response: MockResponse<Response>;
+  let next: jest.Mock;
+
+  beforeEach(() => {
+    request = createRequest();
+    response = createResponse();
+    next = jest.fn();
+  });
+
+  it("should handle OAuth2 callback", async () => {
+    const mockHandleOAuth2Callback = jest.fn();
+
+    const controller: Controller = new Controller(
+      {
+        handleOAuth2Callback: mockHandleOAuth2Callback,
+      },
+      new StorageCache(new MemoryStorageAdapter())
+    );
+
+    await controller.oAuth2Callback(request, response, next);
+
+    expect(mockHandleOAuth2Callback).toBeCalled();
+    expect(next).not.toBeCalled();
+  });
+
+  it("should handle a custom redirect url", async () => {
+    const mockRedirectUrl = "http://example.com";
+    const mockRedirect = jest.fn();
+    const mockHandleOAuth2Callback = jest.fn();
+
+    const controller: Controller = new Controller(
+      {
+        handleOAuth2Callback: mockHandleOAuth2Callback,
+      },
+      new StorageCache(new MemoryStorageAdapter())
+    );
+
+    request = createRequest({
+      query: {
+        redirectUrl: mockRedirectUrl,
+      },
+    });
+    response = { redirect: mockRedirect } as any;
+    await controller.oAuth2Callback(request, response, next);
+
+    expect(mockHandleOAuth2Callback).toBeCalled();
+    expect(mockRedirect).toBeCalledWith(mockRedirectUrl);
+    expect(next).not.toBeCalled();
+  });
+});
+
 describe("getHealth", () => {
   let request: MockRequest<BridgeRequest>;
   let response: MockResponse<Response>;

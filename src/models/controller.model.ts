@@ -543,7 +543,8 @@ export class Controller {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const webUrl = process.env.WEB_URL || APP_WEB_URL;
+    const redirectUrl = req.query.redirectUrl;
+    const webUrl = redirectUrl || process.env.WEB_URL || APP_WEB_URL;
     try {
       if (!this.adapter.handleOAuth2Callback) {
         throw new ServerError(501, "OAuth2 flow not implemented");
