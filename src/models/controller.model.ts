@@ -1,5 +1,6 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
+import { Query } from "express-serve-static-core";
 import { stringify } from "querystring";
 import {
   Adapter,
@@ -538,13 +539,9 @@ export class Controller {
     }
   }
 
-  public async oAuth2Callback(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    const redirectUrl = req.query.redirectUrl;
-    const webUrl = redirectUrl || process.env.WEB_URL || APP_WEB_URL;
+  public async oAuth2Callback(req: Request, res: Response): Promise<void> {
+    const redirectUrl = this.getRedirectUrlParam(req.query);
+
     try {
       if (!this.adapter.handleOAuth2Callback) {
         throw new ServerError(501, "OAuth2 flow not implemented");
@@ -560,10 +557,20 @@ export class Controller {
         url: apiUrl,
       });
 
-      res.redirect(`${webUrl}?${params}`);
+      res.redirect(`${redirectUrl}?${params}`);
     } catch (error) {
       console.error("Unable to save OAuth2 token:", error.message || "Unknown");
-      res.redirect(webUrl);
+      res.redirect(redirectUrl);
     }
+  }
+
+  private getRedirectUrlParam(query: Query) {
+    const queryParam = query.redirectUrl;
+
+    const redirectUrl = Array.isArray(queryParam)
+      ? (queryParam[0] as string)
+      : (queryParam as string);
+
+    return redirectUrl || process.env.WEB_URL || APP_WEB_URL;
   }
 }
