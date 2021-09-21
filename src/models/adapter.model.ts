@@ -42,6 +42,7 @@ export interface Adapter {
   getHealth?: () => Promise<void>;
   getOAuth2RedirectUrl?: (urlConfig?: OAuthURLConfig) => Promise<string>;
   handleOAuth2Callback?: (
-    req: Request
-  ) => Promise<{ apiKey: string; apiUrl: string }>;
+    req: Request,
+    clinqBeta: boolean
+  ) => Promise<{ apiKey: string; apiUrl: string}>;
 }

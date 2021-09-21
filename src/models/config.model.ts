@@ -4,10 +4,10 @@ export interface Config {
   locale: string;
 }
 
-export interface OAuthURLConfig{
+export interface OAuthURLConfig {
   apiUrl: string;
   organizationId: string;
   userId: string;
   key: string;
-  redirectUrl?: string
+  clinqBeta?: boolean;
 }
