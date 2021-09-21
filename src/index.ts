@@ -12,7 +12,7 @@ const settingsPort: number = Number(process.env.PORT) || 8080;
 const app: express.Application = express();
 
 app.use(compression());
-app.use(cors({ credentials: true, origin: true }));
+app.use(cors({ credentials: true, origin: true, allowedHeaders: "x-clinq-redirectUrl" }));
 app.use(bodyParser.json());
 app.use(extractHeaderMiddleware);
 

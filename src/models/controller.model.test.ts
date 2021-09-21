@@ -402,9 +402,14 @@ describe("getOAuth2RedirectUrl", () => {
   });
 
   it("should handle a custom redirect url", async () => {
-    const mockRedirectUrl = "http://example.com";
+    const mockRedirectUrl = "https://www.clinq.app/settings/integrations/oauth/callback?name=UNKNOWN&key=key&url=URL";
     const mockRedirect = jest.fn();
     const mockHandleOAuth2Callback = jest.fn();
+    mockHandleOAuth2Callback.mockReturnValue({
+      apiKey: "key",
+      apiUrl: "URL",
+      redirectUrl: "redirectURL",
+    });
 
     const controller: Controller = new Controller(
       {

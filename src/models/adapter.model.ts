@@ -43,5 +43,5 @@ export interface Adapter {
   getOAuth2RedirectUrl?: (urlConfig?: OAuthURLConfig) => Promise<string>;
   handleOAuth2Callback?: (
     req: Request
-  ) => Promise<{ apiKey: string; apiUrl: string }>;
+  ) => Promise<{ apiKey: string; apiUrl: string}>;
 }

@@ -1,6 +1,5 @@
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
-import { Query } from "express-serve-static-core";
 import { stringify } from "querystring";
 import {
   Adapter,
@@ -23,6 +22,7 @@ import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
+const NEW_APP_URL: string = "https://app.local.clinq.com:3000/settings/oauth2";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 function sanitizeContact(contact: Contact, locale: string): Contact {
@@ -278,10 +278,8 @@ export class Controller {
             }
           : null;
 
-      const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(
-        req.providerConfig,
-        filter
-      );
+      const calendarEvents: CalendarEvent[] =
+        await this.adapter.getCalendarEvents(req.providerConfig, filter);
 
       const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
       if (!valid) {
@@ -330,10 +328,11 @@ export class Controller {
 
       console.log(`Creating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent = await this.adapter.createCalendarEvent(
-        req.providerConfig,
-        req.body as CalendarEventTemplate
-      );
+      const calendarEvent: CalendarEvent =
+        await this.adapter.createCalendarEvent(
+          req.providerConfig,
+          req.body as CalendarEventTemplate
+        );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
@@ -377,11 +376,12 @@ export class Controller {
 
       console.log(`Updating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent = await this.adapter.updateCalendarEvent(
-        req.providerConfig,
-        req.params.id,
-        req.body as CalendarEventTemplate
-      );
+      const calendarEvent: CalendarEvent =
+        await this.adapter.updateCalendarEvent(
+          req.providerConfig,
+          req.params.id,
+          req.body as CalendarEventTemplate
+        );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
@@ -527,7 +527,7 @@ export class Controller {
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
-        redirectUrl: (req.header("x-clinq-redirectUrl") as string)
+        newApp: req.header("x-clinq-redirectUrl") as string,
       };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
@@ -541,14 +541,25 @@ export class Controller {
   }
 
   public async oAuth2Callback(req: Request, res: Response): Promise<void> {
-    const redirectUrl = this.getRedirectUrlParam(req.query);
+
+    let redirectUrl = APP_WEB_URL;
+    if (req.query.newapp) {
+       redirectUrl = NEW_APP_URL;
+       console.log("Changed redirect url to: ", redirectUrl);
+    }
 
     try {
       if (!this.adapter.handleOAuth2Callback) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
 
-      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req);
+      console.log("Before handleOAuth2Callback from Adapter");
+
+      const { apiKey, apiUrl } =
+        await this.adapter.handleOAuth2Callback(req);
+
+      console.log("API URL: ", apiUrl);
+      console.log("API Key: ", apiKey);
 
       const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
@@ -558,20 +569,13 @@ export class Controller {
         url: apiUrl,
       });
 
+      console.log("Params: ", params);
+
       res.redirect(`${redirectUrl}?${params}`);
     } catch (error) {
-      console.error("Unable to save OAuth2 token:", error.message || "Unknown");
+      console.error("Unable to save OAuth2 token:", error || "Unknown");
       res.redirect(redirectUrl);
     }
   }
 
-  private getRedirectUrlParam(query: Query) {
-    const queryParam = query.redirectUrl;
-
-    const redirectUrl = Array.isArray(queryParam)
-      ? (queryParam[0] as string)
-      : (queryParam as string);
-
-    return redirectUrl || process.env.WEB_URL || APP_WEB_URL;
   }
-}

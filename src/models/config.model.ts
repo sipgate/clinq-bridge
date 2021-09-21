@@ -9,5 +9,5 @@ export interface OAuthURLConfig{
   organizationId: string;
   userId: string;
   key: string;
-  redirectUrl?: string
+  newApp?: string
 }
