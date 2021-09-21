@@ -527,6 +527,7 @@ export class Controller {
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
+        redirectUrl: (req.header("x-clinq-redirectUrl") as string)
       };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
