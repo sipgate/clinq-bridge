@@ -395,7 +395,7 @@ describe("getOAuth2RedirectUrl", () => {
       new StorageCache(new MemoryStorageAdapter())
     );
 
-    await controller.oAuth2Callback(request, response, next);
+    await controller.oAuth2Callback(request, response);
 
     expect(mockHandleOAuth2Callback).toBeCalled();
     expect(next).not.toBeCalled();
@@ -419,7 +419,7 @@ describe("getOAuth2RedirectUrl", () => {
       },
     });
     response = { redirect: mockRedirect } as any;
-    await controller.oAuth2Callback(request, response, next);
+    await controller.oAuth2Callback(request, response);
 
     expect(mockHandleOAuth2Callback).toBeCalled();
     expect(mockRedirect).toBeCalledWith(mockRedirectUrl);
