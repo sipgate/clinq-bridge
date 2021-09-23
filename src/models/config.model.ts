@@ -9,5 +9,5 @@ export interface OAuthURLConfig{
   organizationId: string;
   userId: string;
   key: string;
-  newApp?: string
+  clinqBeta?: string
 }

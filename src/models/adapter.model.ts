@@ -43,6 +43,6 @@ export interface Adapter {
   getOAuth2RedirectUrl?: (urlConfig?: OAuthURLConfig) => Promise<string>;
   handleOAuth2Callback?: (
     req: Request,
-    isNewApp: boolean
+    clinqBeta: boolean
   ) => Promise<{ apiKey: string; apiUrl: string}>;
 }

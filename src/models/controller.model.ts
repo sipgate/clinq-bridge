@@ -22,7 +22,7 @@ import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
-const NEW_APP_URL: string = "https://app.local.clinq.com:3000/settings/oauth2";
+const CLINQ_BETA_URL: string = "https://app.local.clinq.com:3000/settings/oauth2";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 function sanitizeContact(contact: Contact, locale: string): Contact {
@@ -527,7 +527,7 @@ export class Controller {
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
-        newApp: req.header("x-clinq-redirectUrl") as string,
+        clinqBeta: req.header("x-clinq-beta-enabled") as string,
       };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
@@ -541,11 +541,10 @@ export class Controller {
   }
 
   public async oAuth2Callback(req: Request, res: Response): Promise<void> {
-
     let redirectUrl = APP_WEB_URL;
-    if (req.query.newapp) {
-       redirectUrl = NEW_APP_URL;
-       console.log("Changed redirect url to: ", redirectUrl);
+    if (req.query.clinqBeta) {
+      redirectUrl = CLINQ_BETA_URL;
+      console.log("Changed redirect url to: ", redirectUrl);
     }
 
     try {
@@ -555,11 +554,13 @@ export class Controller {
 
       console.log("Before handleOAuth2Callback from Adapter");
 
-      const isNewApp = req.query.newapp === "true";
-      console.log("Is new app? ", isNewApp);
+      const isClinqBeta = req.query.clinqBeta === "true";
+      console.log("Is CLINQ Beta? ", isClinqBeta);
 
-      const { apiKey, apiUrl } =
-        await this.adapter.handleOAuth2Callback(req, isNewApp);
+      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
+        req,
+        isClinqBeta
+      );
 
       console.log("API URL: ", apiUrl);
       console.log("API Key: ", apiKey);
@@ -580,5 +581,4 @@ export class Controller {
       res.redirect(redirectUrl);
     }
   }
-
-  }
+}
