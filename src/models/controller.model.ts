@@ -555,8 +555,11 @@ export class Controller {
 
       console.log("Before handleOAuth2Callback from Adapter");
 
+      const isNewApp = req.query.newapp === "true";
+      console.log("Is new app? ", isNewApp);
+
       const { apiKey, apiUrl } =
-        await this.adapter.handleOAuth2Callback(req);
+        await this.adapter.handleOAuth2Callback(req, isNewApp);
 
       console.log("API URL: ", apiUrl);
       console.log("API Key: ", apiKey);
