@@ -544,7 +544,9 @@ export class Controller {
 
   public async oAuth2Callback(req: Request, res: Response): Promise<void> {
     let redirectUrl = APP_WEB_URL;
-    if (req.query.clinqBeta) {
+    console.log("Request QUERY: ", req.query);
+
+    if (req.query.clinq_beta) {
       redirectUrl = CLINQ_BETA_URL;
       console.log("Changed redirect url to: ", redirectUrl);
     }
@@ -556,7 +558,7 @@ export class Controller {
 
       console.log("Before handleOAuth2Callback from Adapter");
 
-      const isClinqBeta = req.query.clinqBeta === "true";
+      const isClinqBeta = req.query.clinq_beta === "true";
       console.log("Is CLINQ Beta? ", isClinqBeta);
 
       const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
