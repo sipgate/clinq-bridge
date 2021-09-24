@@ -530,7 +530,6 @@ export class Controller {
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
         clinqBeta: Boolean(req.header("x-clinq-beta-enabled")),
       };
-      console.log("UrlConfig: ", urlConfig.clinqBeta);
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
     } catch (error) {
@@ -544,11 +543,9 @@ export class Controller {
 
   public async oAuth2Callback(req: Request, res: Response): Promise<void> {
     let redirectUrl = APP_WEB_URL;
-    console.log("Request QUERY: ", req.query);
 
     if (req.query.clinq_beta) {
       redirectUrl = CLINQ_BETA_URL;
-      console.log("Changed redirect url to: ", redirectUrl);
     }
 
     try {
@@ -556,18 +553,12 @@ export class Controller {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
 
-      console.log("Before handleOAuth2Callback from Adapter");
-
       const isClinqBeta = req.query.clinq_beta === "true";
-      console.log("Is CLINQ Beta? ", isClinqBeta);
 
       const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
         req,
         isClinqBeta
       );
-
-      console.log("API URL: ", apiUrl);
-      console.log("API Key: ", apiKey);
 
       const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
@@ -576,8 +567,6 @@ export class Controller {
         key: apiKey,
         url: apiUrl,
       });
-
-      console.log("Params: ", params);
 
       res.redirect(`${redirectUrl}?${params}`);
     } catch (error) {
