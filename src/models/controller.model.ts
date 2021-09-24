@@ -22,7 +22,8 @@ import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
-const CLINQ_BETA_URL: string = "https://app.local.clinq.com:3000/settings/oauth2";
+const CLINQ_BETA_URL: string =
+  "https://app.local.clinq.com:3000/settings/oauth2";
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 function sanitizeContact(contact: Contact, locale: string): Contact {
@@ -527,8 +528,9 @@ export class Controller {
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
-        clinqBeta: req.header("x-clinq-beta-enabled") as string,
+        clinqBeta: Boolean(req.header("x-clinq-beta-enabled")),
       };
+      console.log("UrlConfig: ", urlConfig.clinqBeta);
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
     } catch (error) {
