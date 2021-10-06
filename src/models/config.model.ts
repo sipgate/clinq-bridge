@@ -9,5 +9,10 @@ export interface OAuthURLConfig {
   organizationId: string;
   userId: string;
   key: string;
-  clinqBeta?: boolean;
+  clinqEnvironment?: ClinqBetaEnvironment;
+}
+
+export enum ClinqBetaEnvironment {
+  DEV = "dev",
+  LIVE = "live"
 }

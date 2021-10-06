@@ -6,7 +6,7 @@ import {
   BridgeRequest,
   CalendarEvent,
   CalendarEventTemplate,
-  CallEvent,
+  CallEvent, ClinqBetaEnvironment,
   Contact,
   ContactCache,
   ContactTemplate,
@@ -22,8 +22,11 @@ import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
-const CLINQ_BETA_URL: string =
+const CLINQ_BETA_DEV_URL: string =
   "https://app.local.clinq.com:3000/settings/oauth2";
+const CLINQ_BETA_LIVE_URL: string =
+  "https://dev.phone.clinq.app/settings/oauth2";
+
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 function sanitizeContact(contact: Contact, locale: string): Contact {
@@ -528,7 +531,7 @@ export class Controller {
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
-        clinqBeta: Boolean(req.header("x-clinq-beta-enabled")),
+        clinqEnvironment: (req.header("x-clinq-environment") as ClinqBetaEnvironment),
       };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
       res.send({ redirectUrl });
@@ -544,8 +547,11 @@ export class Controller {
   public async oAuth2Callback(req: Request, res: Response): Promise<void> {
     let redirectUrl = APP_WEB_URL;
 
-    if (req.query.clinq_beta) {
-      redirectUrl = CLINQ_BETA_URL;
+    if (req.query.clinq_environment === ClinqBetaEnvironment.DEV) {
+      redirectUrl = CLINQ_BETA_DEV_URL;
+    }
+    if (req.query.clinq_environment === ClinqBetaEnvironment.LIVE) {
+      redirectUrl = CLINQ_BETA_LIVE_URL;
     }
 
     try {
@@ -553,11 +559,14 @@ export class Controller {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
 
-      const isClinqBeta = req.query.clinq_beta === "true";
+      let clinqEnvironment;
 
-      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
-        req,
-        isClinqBeta
+      if( req.query.clinq_environment === "dev" ||  req.query.clinq_environment === "live"){
+        clinqEnvironment = req.query.clinq_environment as ClinqBetaEnvironment;
+      }
+
+      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req,
+          clinqEnvironment
       );
 
       const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
