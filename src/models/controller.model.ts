@@ -6,7 +6,8 @@ import {
   BridgeRequest,
   CalendarEvent,
   CalendarEventTemplate,
-  CallEvent, ClinqBetaEnvironment,
+  CallEvent,
+  ClinqBetaEnvironment,
   Contact,
   ContactCache,
   ContactTemplate,
@@ -282,8 +283,10 @@ export class Controller {
             }
           : null;
 
-      const calendarEvents: CalendarEvent[] =
-        await this.adapter.getCalendarEvents(req.providerConfig, filter);
+      const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(
+        req.providerConfig,
+        filter
+      );
 
       const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
       if (!valid) {
@@ -332,11 +335,10 @@ export class Controller {
 
       console.log(`Creating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent =
-        await this.adapter.createCalendarEvent(
-          req.providerConfig,
-          req.body as CalendarEventTemplate
-        );
+      const calendarEvent: CalendarEvent = await this.adapter.createCalendarEvent(
+        req.providerConfig,
+        req.body as CalendarEventTemplate
+      );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
@@ -380,12 +382,11 @@ export class Controller {
 
       console.log(`Updating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent =
-        await this.adapter.updateCalendarEvent(
-          req.providerConfig,
-          req.params.id,
-          req.body as CalendarEventTemplate
-        );
+      const calendarEvent: CalendarEvent = await this.adapter.updateCalendarEvent(
+        req.providerConfig,
+        req.params.id,
+        req.body as CalendarEventTemplate
+      );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
@@ -526,14 +527,18 @@ export class Controller {
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
+
       const urlConfig: OAuthURLConfig = {
         organizationId: (req.header("x-clinq-organization") as string) || "",
         userId: (req.header("x-clinq-user") as string) || "",
         key: (req.header("x-clinq-key") as string) || "",
         apiUrl: (req.header("x-clinq-apiurl") as string) || "",
-        clinqEnvironment: (req.header("x-clinq-environment") as ClinqBetaEnvironment),
+        clinqEnvironment: req.header(
+          "x-clinq-environment"
+        ) as ClinqBetaEnvironment,
       };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
+
       res.send({ redirectUrl });
     } catch (error) {
       console.error(
@@ -544,13 +549,17 @@ export class Controller {
     }
   }
 
-  public async oAuth2Callback(req: Request, res: Response): Promise<void> {
+  public async oAuth2Callback(
+    req: Request,
+    res: Response,
+    clinqEnvironment?: ClinqBetaEnvironment
+  ): Promise<void> {
     let redirectUrl = APP_WEB_URL;
 
-    if (req.query.clinq_environment === ClinqBetaEnvironment.DEV) {
+    if (clinqEnvironment === ClinqBetaEnvironment.DEV) {
       redirectUrl = CLINQ_BETA_DEV_URL;
     }
-    if (req.query.clinq_environment === ClinqBetaEnvironment.LIVE) {
+    if (clinqEnvironment === ClinqBetaEnvironment.LIVE) {
       redirectUrl = CLINQ_BETA_LIVE_URL;
     }
 
@@ -559,14 +568,9 @@ export class Controller {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
 
-      let clinqEnvironment;
-
-      if( req.query.clinq_environment === "dev" ||  req.query.clinq_environment === "live"){
-        clinqEnvironment = req.query.clinq_environment as ClinqBetaEnvironment;
-      }
-
-      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req,
-          clinqEnvironment
+      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
+        req,
+        clinqEnvironment
       );
 
       const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
