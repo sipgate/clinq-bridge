@@ -1,7 +1,7 @@
 export enum PhoneNumberLabel {
   WORK = "WORK",
   MOBILE = "MOBILE",
-  HOME = "HOME"
+  HOME = "HOME",
 }
 
 export interface PhoneNumber {
@@ -18,6 +18,10 @@ export interface ContactTemplate {
   phoneNumbers: PhoneNumber[];
 }
 
+export interface TimeoutResult {
+  status: 408;
+  description: string;
+}
 export interface Contact extends ContactTemplate {
   id: string;
   contactUrl: string | null;

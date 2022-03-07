@@ -10,6 +10,7 @@ import {
   ClinqBetaEnvironment,
   Contact,
   ContactCache,
+  TimeoutResult,
   ContactTemplate,
   ContactUpdate,
   OAuthURLConfig,
@@ -97,13 +98,23 @@ export class Controller {
         ? this.contactCache.get(apiKey, fetchContacts)
         : fetchContacts();
 
-      const timeoutPromise: Promise<Contact[]> = new Promise((resolve) =>
-        setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
+      const timeoutPromise: Promise<TimeoutResult> = new Promise((resolve) =>
+        setTimeout(
+          () =>
+            resolve({ status: 408, description: "Request is still fetching" }),
+          CONTACT_FETCH_TIMEOUT
+        )
       );
 
-      const contacts = await Promise.race([fetcherPromise, timeoutPromise]);
+      const result = await Promise.race([fetcherPromise, timeoutPromise]);
 
-      const responseContacts: Contact[] = contacts || [];
+      if (result && "status" in result) {
+        res.status(result.status);
+        res.send(result);
+        return;
+      }
+
+      const responseContacts: Contact[] = result || [];
 
       console.log(
         `Found ${
@@ -113,7 +124,7 @@ export class Controller {
 
       res.send(responseContacts);
     } catch (error) {
-      console.error("Could not get contacts:", error.message || "Unknown");
+      console.error("Could not get contacts:", error || "Unknown");
       next(error);
     }
   }
@@ -160,7 +171,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not create contact:", error.message || "Unknown");
+      console.error("Could not create contact:", error || "Unknown");
       next(error);
     }
   }
@@ -210,7 +221,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not update contact:", error.message || "Unknown");
+      console.error("Could not update contact:", error || "Unknown");
       next(error);
     }
   }
@@ -246,7 +257,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not delete contact:", error.message || "Unknown");
+      console.error("Could not delete contact:", error || "Unknown");
       next(error);
     }
   }
@@ -307,10 +318,7 @@ export class Controller {
       );
       res.send(calendarEvents);
     } catch (error) {
-      console.error(
-        "Could not get calendar events:",
-        error.message || "Unknown"
-      );
+      console.error("Could not get calendar events:", error || "Unknown");
       next(error);
     }
   }
@@ -354,10 +362,7 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
-      console.error(
-        "Could not create calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not create calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -402,10 +407,7 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
-      console.error(
-        "Could not update calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not update calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -433,10 +435,7 @@ export class Controller {
       await this.adapter.deleteCalendarEvent(req.providerConfig, req.params.id);
       res.status(200).send();
     } catch (error) {
-      console.error(
-        "Could not delete calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not delete calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -465,7 +464,7 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
-      console.error("Could not handle call event:", error.message || "Unknown");
+      console.error("Could not handle call event:", error || "Unknown");
       next(error);
     }
   }
@@ -494,10 +493,7 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
-      console.error(
-        "Could not handle connected event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not handle connected event:", error || "Unknown");
       next(error);
     }
   }
@@ -513,7 +509,7 @@ export class Controller {
       }
       res.sendStatus(200);
     } catch (error) {
-      console.error("Health check failed:", error.message || "Unknown");
+      console.error("Health check failed:", error || "Unknown");
       next(error || "Internal Server Error");
     }
   }
@@ -541,10 +537,7 @@ export class Controller {
 
       res.send({ redirectUrl });
     } catch (error) {
-      console.error(
-        "Could not get OAuth2 redirect URL:",
-        error.message || "Unknown"
-      );
+      console.error("Could not get OAuth2 redirect URL:", error || "Unknown");
       next(error);
     }
   }
