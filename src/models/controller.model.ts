@@ -9,10 +9,12 @@ import {
   CallEvent,
   ClinqBetaEnvironment,
   Contact,
-  ContactCache, ContactTemplate,
+  ContactCache,
+  ContactTemplate,
   ContactUpdate,
   OAuthURLConfig,
-  ServerError, TimeoutResult
+  ServerError,
+  TimeoutResult,
 } from ".";
 import { calendarEventsSchema, contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
@@ -24,8 +26,10 @@ const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
 const CLINQ_BETA_DEV_URL: string =
   "https://app.local.clinq.com:3000/settings/oauth2";
-const CLINQ_BETA_LIVE_URL: string =
-  "https://phone.clinq.com/settings/oauth2";
+const CLINQ_BETA_LIVE_URL: string = "https://phone.clinq.com/settings/oauth2";
+
+const CLINQ_BETA_URL: string =
+  "https://oauth.desktop.clinq.com/crm/oauth-callback";
 
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
@@ -552,6 +556,9 @@ export class Controller {
     }
     if (clinqEnvironment === ClinqBetaEnvironment.LIVE) {
       redirectUrl = CLINQ_BETA_LIVE_URL;
+    }
+    if (clinqEnvironment === ClinqBetaEnvironment.BETA) {
+      redirectUrl = CLINQ_BETA_URL;
     }
 
     try {

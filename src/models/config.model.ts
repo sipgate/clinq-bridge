@@ -14,5 +14,6 @@ export interface OAuthURLConfig {
 
 export enum ClinqBetaEnvironment {
   DEV = "dev",
-  LIVE = "live"
+  LIVE = "live",
+  BETA = "beta",
 }

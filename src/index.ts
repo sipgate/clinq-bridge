@@ -50,6 +50,10 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
     controller.oAuth2Callback(req, res, ClinqBetaEnvironment.LIVE)
   );
 
+  app.get("/oauth2/callback/clinq-environment/beta", (req, res) =>
+    controller.oAuth2Callback(req, res, ClinqBetaEnvironment.BETA)
+  );
+
   app.use(errorHandlerMiddleware);
 
   return app.listen(port, () => console.log(`Listening on port ${port}`)); // tslint:disable-line
