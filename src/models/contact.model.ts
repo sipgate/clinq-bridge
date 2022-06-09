@@ -2,6 +2,15 @@ export enum PhoneNumberLabel {
   WORK = "WORK",
   MOBILE = "MOBILE",
   HOME = "HOME",
+  HOMEFAX = "HOMEFAX",
+  WORKFAX = "WORKFAX",
+  OTHERFAX = "OTHERFAX",
+  PAGER = "PAGER",
+  WORKMOBILE = "WORKMOBILE",
+  WORKPAGER = "WORKPAGER",
+  MAIN = "MAIN",
+  GOOGLEVOICE = "GOOGLEVOICE",
+  OTHER = "OTHER",
 }
 
 export interface PhoneNumber {
