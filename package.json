@@ -69,7 +69,7 @@
     "@types/redis": "2.8.32",
     "husky": "7.0.4",
     "jest": "^25.5.4",
-    "lint-staged": "^10.2.2",
+    "lint-staged": "10.5.4",
     "node-mocks-http": "^1.8.1",
     "prettier": "2.7.1",
     "rimraf": "^3.0.2",
