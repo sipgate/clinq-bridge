@@ -71,7 +71,7 @@
     "jest": "^25.5.4",
     "lint-staged": "^10.2.2",
     "node-mocks-http": "^1.8.1",
-    "prettier": "^2.0.5",
+    "prettier": "2.7.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"
