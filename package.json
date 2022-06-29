@@ -67,7 +67,7 @@
     "@types/lru-cache": "5.1.1",
     "@types/node": "^13.13.4",
     "@types/redis": "2.8.32",
-    "husky": "^7.0.2",
+    "husky": "7.0.4",
     "jest": "^25.5.4",
     "lint-staged": "^10.2.2",
     "node-mocks-http": "^1.8.1",
