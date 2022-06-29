@@ -70,7 +70,7 @@
     "husky": "7.0.4",
     "jest": "^25.5.4",
     "lint-staged": "10.5.4",
-    "node-mocks-http": "^1.8.1",
+    "node-mocks-http": "1.11.0",
     "prettier": "2.7.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^25.4.0",
