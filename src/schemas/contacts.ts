@@ -6,28 +6,31 @@ export const contactsSchema = {
     properties: {
       fillDefaults: true,
       id: {
-        type: "string"
+        type: "string",
       },
       email: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       organization: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       contactUrl: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       avatarUrl: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       name: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       firstName: {
-        type: ["string", "null"]
+        type: ["string", "null"],
       },
       lastName: {
-        type: ["string", "null"]
+        type: ["string", "null"],
+      },
+      readonly: {
+        type: ["boolean"],
       },
       phoneNumbers: {
         type: "array",
@@ -36,15 +39,15 @@ export const contactsSchema = {
           properties: {
             fillDefaults: true,
             label: {
-              type: "string"
+              type: "string",
             },
             phoneNumber: {
-              type: "string"
-            }
+              type: "string",
+            },
           },
-          required: ["label", "phoneNumber"]
-        }
-      }
+          required: ["label", "phoneNumber"],
+        },
+      },
     },
     required: [
       "id",
@@ -55,7 +58,7 @@ export const contactsSchema = {
       "organization",
       "contactUrl",
       "avatarUrl",
-      "phoneNumbers"
-    ]
-  }
+      "phoneNumbers",
+    ],
+  },
 };

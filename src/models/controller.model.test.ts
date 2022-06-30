@@ -30,6 +30,26 @@ const contactsMock: Contact[] = [
   },
 ];
 
+const contactsReadonlyMock: Contact[] = [
+  {
+    id: "abc123",
+    name: "Walter Geoffrey",
+    firstName: null,
+    lastName: null,
+    email: "walter@example.com",
+    organization: "Rocket Science Inc.",
+    contactUrl: "http://myapp.com/contacts/abc123",
+    avatarUrl: "http://myapp.com/avatar/abc123.png",
+    phoneNumbers: [
+      {
+        label: PhoneNumberLabel.MOBILE,
+        phoneNumber: "+4915799912345",
+      },
+    ],
+    readonly: true,
+  },
+];
+
 const calendarEventMock: CalendarEvent = {
   id: "abc123",
   title: "My Event",
@@ -117,6 +137,22 @@ describe("getContacts", () => {
 
     expect(next).not.toBeCalled();
     expect(data).toEqual(contactsMock);
+  });
+
+  it("should handle readonly contacts", async () => {
+    const controller: Controller = new Controller(
+      {
+        getContacts: () => Promise.resolve(contactsReadonlyMock),
+      },
+      new StorageCache(new MemoryStorageAdapter())
+    );
+
+    await controller.getContacts(request, response, next);
+
+    const data: Contact[] = response._getData();
+
+    expect(next).not.toBeCalled();
+    expect(data).toEqual(contactsReadonlyMock);
   });
 
   it("should handle contacts with minimum fields", async () => {
