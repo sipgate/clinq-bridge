@@ -11,6 +11,7 @@ export enum PhoneNumberLabel {
   MAIN = "MAIN",
   GOOGLEVOICE = "GOOGLEVOICE",
   OTHER = "OTHER",
+  DIRECTDIAL = "DIRECTDIAL",
 }
 
 export interface PhoneNumber {
@@ -35,6 +36,7 @@ export interface Contact extends ContactTemplate {
   id: string;
   contactUrl: string | null;
   avatarUrl: string | null;
+  readonly?: boolean;
 }
 
 export interface ContactUpdate extends ContactTemplate {
