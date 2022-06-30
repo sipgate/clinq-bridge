@@ -1,4 +1,4 @@
-name: Build & Test
+name: ci
 
 on:
   push:
@@ -7,11 +7,10 @@ on:
   pull_request:
     branches:
       - master
-  schedule:
-    - cron: "*/30 * * * *"
+
 jobs:
-  verify:
-    name: Verify commit
+  check:
+    name: check
     runs-on: ubuntu-latest
 
     steps:
