@@ -54,14 +54,16 @@ export class StorageCache implements ContactCache {
 
         const isValueStale: boolean = Boolean(
           cacheItemState &&
-            cacheItemState.state === CacheItemStateType.CACHED &&
-            now > cacheItemState.updated + this.cacheRefreshIntervalMs
+          cacheItemState.state === CacheItemStateType.CACHED &&
+          now > cacheItemState.updated + this.cacheRefreshIntervalMs
         );
 
         const isValueNotCached: boolean = !cacheItemState;
 
         if (getFreshValue && (isValueNotCached || isValueStale)) {
-          this.getRefreshed(key, getFreshValue);
+          this.getRefreshed(key, getFreshValue).catch(error => {
+            console.error(`Unable to get fresh values for"${anonymizeKey(key)}" with error ${error}`);
+          });
         }
 
         return value;

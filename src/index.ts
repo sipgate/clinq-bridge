@@ -1,3 +1,4 @@
+import { ClinqBetaEnvironment } from ".";
 import * as bodyParser from "body-parser";
 import * as compression from "compression";
 import * as cors from "cors";
@@ -12,7 +13,13 @@ const settingsPort: number = Number(process.env.PORT) || 8080;
 const app: express.Application = express();
 
 app.use(compression());
-app.use(cors({ credentials: true, origin: true }));
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+    allowedHeaders: "x-clinq-environment",
+  })
+);
 app.use(bodyParser.json());
 app.use(extractHeaderMiddleware);
 
@@ -33,7 +40,19 @@ export function start(adapter: Adapter, port: number = settingsPort): Server {
   app.post("/events/connected", controller.handleConnectedEvent);
   app.get("/health", controller.getHealth);
   app.get("/oauth2/redirect", controller.oAuth2Redirect);
-  app.get("/oauth2/callback", controller.oAuth2Callback);
+  app.get("/oauth2/callback", (req, res) =>
+    controller.oAuth2Callback(req, res)
+  );
+  app.get("/oauth2/callback/clinq-environment/dev", (req, res) =>
+    controller.oAuth2Callback(req, res, ClinqBetaEnvironment.DEV)
+  );
+  app.get("/oauth2/callback/clinq-environment/live", (req, res) =>
+    controller.oAuth2Callback(req, res, ClinqBetaEnvironment.LIVE)
+  );
+
+  app.get("/oauth2/callback/clinq-environment/beta", (req, res) =>
+    controller.oAuth2Callback(req, res, ClinqBetaEnvironment.BETA)
+  );
 
   app.use(errorHandlerMiddleware);
 

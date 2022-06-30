@@ -7,12 +7,14 @@ import {
   CalendarEvent,
   CalendarEventTemplate,
   CallEvent,
+  ClinqBetaEnvironment,
   Contact,
   ContactCache,
   ContactTemplate,
   ContactUpdate,
   OAuthURLConfig,
   ServerError,
+  TimeoutResult,
 } from ".";
 import { calendarEventsSchema, contactsSchema } from "../schemas";
 import { anonymizeKey } from "../util/anonymize-key";
@@ -22,6 +24,13 @@ import { CalendarFilterOptions } from "./calendar-filter-options.model";
 
 const APP_WEB_URL: string =
   "https://www.clinq.app/settings/integrations/oauth/callback";
+const CLINQ_BETA_DEV_URL: string =
+  "https://app.local.clinq.com:3000/settings/oauth2";
+const CLINQ_BETA_LIVE_URL: string = "https://phone.clinq.com/settings/oauth2";
+
+const CLINQ_BETA_URL: string =
+  "https://oauth.desktop.clinq.com/crm/oauth-callback";
+
 const CONTACT_FETCH_TIMEOUT: number = 3000;
 
 function sanitizeContact(contact: Contact, locale: string): Contact {
@@ -91,13 +100,23 @@ export class Controller {
         ? this.contactCache.get(apiKey, fetchContacts)
         : fetchContacts();
 
-      const timeoutPromise: Promise<Contact[]> = new Promise((resolve) =>
-        setTimeout(() => resolve([]), CONTACT_FETCH_TIMEOUT)
+      const timeoutPromise: Promise<TimeoutResult> = new Promise((resolve) =>
+        setTimeout(
+          () =>
+            resolve({ status: 408, description: "Request is still fetching" }),
+          CONTACT_FETCH_TIMEOUT
+        )
       );
 
-      const contacts = await Promise.race([fetcherPromise, timeoutPromise]);
+      const result = await Promise.race([fetcherPromise, timeoutPromise]);
 
-      const responseContacts: Contact[] = contacts || [];
+      if (result && "status" in result) {
+        res.status(result.status);
+        res.send(result);
+        return;
+      }
+
+      const responseContacts: Contact[] = result || [];
 
       console.log(
         `Found ${
@@ -107,7 +126,7 @@ export class Controller {
 
       res.send(responseContacts);
     } catch (error) {
-      console.error("Could not get contacts:", error.message || "Unknown");
+      console.error("Could not get contacts:", error || "Unknown");
       next(error);
     }
   }
@@ -154,7 +173,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not create contact:", error.message || "Unknown");
+      console.error("Could not create contact:", error || "Unknown");
       next(error);
     }
   }
@@ -204,7 +223,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not update contact:", error.message || "Unknown");
+      console.error("Could not update contact:", error || "Unknown");
       next(error);
     }
   }
@@ -240,7 +259,7 @@ export class Controller {
         }
       }
     } catch (error) {
-      console.error("Could not delete contact:", error.message || "Unknown");
+      console.error("Could not delete contact:", error || "Unknown");
       next(error);
     }
   }
@@ -301,10 +320,7 @@ export class Controller {
       );
       res.send(calendarEvents);
     } catch (error) {
-      console.error(
-        "Could not get calendar events:",
-        error.message || "Unknown"
-      );
+      console.error("Could not get calendar events:", error || "Unknown");
       next(error);
     }
   }
@@ -348,10 +364,7 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
-      console.error(
-        "Could not create calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not create calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -396,10 +409,7 @@ export class Controller {
 
       res.send(calendarEvent);
     } catch (error) {
-      console.error(
-        "Could not update calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not update calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -427,10 +437,7 @@ export class Controller {
       await this.adapter.deleteCalendarEvent(req.providerConfig, req.params.id);
       res.status(200).send();
     } catch (error) {
-      console.error(
-        "Could not delete calendar event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not delete calendar event:", error || "Unknown");
       next(error);
     }
   }
@@ -459,7 +466,7 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
-      console.error("Could not handle call event:", error.message || "Unknown");
+      console.error("Could not handle call event:", error || "Unknown");
       next(error);
     }
   }
@@ -488,10 +495,7 @@ export class Controller {
 
       res.status(200).send();
     } catch (error) {
-      console.error(
-        "Could not handle connected event:",
-        error.message || "Unknown"
-      );
+      console.error("Could not handle connected event:", error || "Unknown");
       next(error);
     }
   }
@@ -507,7 +511,7 @@ export class Controller {
       }
       res.sendStatus(200);
     } catch (error) {
-      console.error("Health check failed:", error.message || "Unknown");
+      console.error("Health check failed:", error || "Unknown");
       next(error || "Internal Server Error");
     }
   }
@@ -521,19 +525,21 @@ export class Controller {
       if (!this.adapter.getOAuth2RedirectUrl) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
-      const urlConfig : OAuthURLConfig = {
-        organizationId: req.headers["X-CLINQ-ORGANIZATION"] as string || "",
-        userId: req.headers["X-CLINQ-USER"] as string || "",
-        key: req.headers["X-CLINQ-KEY"] as string || "",
-        apiUrl: req.headers["X-CLINQ-APIURL"] as string || ""
-      }
+
+      const urlConfig: OAuthURLConfig = {
+        organizationId: (req.header("x-clinq-organization") as string) || "",
+        userId: (req.header("x-clinq-user") as string) || "",
+        key: (req.header("x-clinq-key") as string) || "",
+        apiUrl: (req.header("x-clinq-apiurl") as string) || "",
+        clinqEnvironment: req.header(
+          "x-clinq-environment"
+        ) as ClinqBetaEnvironment,
+      };
       const redirectUrl = await this.adapter.getOAuth2RedirectUrl(urlConfig);
+
       res.send({ redirectUrl });
     } catch (error) {
-      console.error(
-        "Could not get OAuth2 redirect URL:",
-        error.message || "Unknown"
-      );
+      console.error("Could not get OAuth2 redirect URL:", error || "Unknown");
       next(error);
     }
   }
@@ -541,15 +547,29 @@ export class Controller {
   public async oAuth2Callback(
     req: Request,
     res: Response,
-    next: NextFunction
+    clinqEnvironment?: ClinqBetaEnvironment
   ): Promise<void> {
-    const webUrl = process.env.WEB_URL || APP_WEB_URL;
+    let redirectUrl = APP_WEB_URL;
+
+    if (clinqEnvironment === ClinqBetaEnvironment.DEV) {
+      redirectUrl = CLINQ_BETA_DEV_URL;
+    }
+    if (clinqEnvironment === ClinqBetaEnvironment.LIVE) {
+      redirectUrl = CLINQ_BETA_LIVE_URL;
+    }
+    if (clinqEnvironment === ClinqBetaEnvironment.BETA) {
+      redirectUrl = CLINQ_BETA_URL;
+    }
+
     try {
       if (!this.adapter.handleOAuth2Callback) {
         throw new ServerError(501, "OAuth2 flow not implemented");
       }
 
-      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(req);
+      const { apiKey, apiUrl } = await this.adapter.handleOAuth2Callback(
+        req,
+        clinqEnvironment
+      );
 
       const oAuthIdentifier = process.env.OAUTH_IDENTIFIER || "UNKNOWN";
 
@@ -559,10 +579,10 @@ export class Controller {
         url: apiUrl,
       });
 
-      res.redirect(`${webUrl}?${params}`);
+      res.redirect(`${redirectUrl}?${params}`);
     } catch (error) {
-      console.error("Unable to save OAuth2 token:", error.message || "Unknown");
-      res.redirect(webUrl);
+      console.error("Unable to save OAuth2 token:", error || "Unknown");
+      res.redirect(redirectUrl);
     }
   }
 }

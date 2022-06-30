@@ -1,7 +1,17 @@
 export enum PhoneNumberLabel {
   WORK = "WORK",
   MOBILE = "MOBILE",
-  HOME = "HOME"
+  HOME = "HOME",
+  HOMEFAX = "HOMEFAX",
+  WORKFAX = "WORKFAX",
+  OTHERFAX = "OTHERFAX",
+  PAGER = "PAGER",
+  WORKMOBILE = "WORKMOBILE",
+  WORKPAGER = "WORKPAGER",
+  MAIN = "MAIN",
+  GOOGLEVOICE = "GOOGLEVOICE",
+  OTHER = "OTHER",
+  DIRECTDIAL = "DIRECTDIAL",
 }
 
 export interface PhoneNumber {
@@ -18,10 +28,15 @@ export interface ContactTemplate {
   phoneNumbers: PhoneNumber[];
 }
 
+export interface TimeoutResult {
+  status: 408;
+  description: string;
+}
 export interface Contact extends ContactTemplate {
   id: string;
   contactUrl: string | null;
   avatarUrl: string | null;
+  readonly?: boolean;
 }
 
 export interface ContactUpdate extends ContactTemplate {

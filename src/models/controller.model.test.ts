@@ -39,10 +39,36 @@ const calendarEventMock: CalendarEvent = {
   end: 123456789,
 };
 
+const calendarWithMissingField: Partial<CalendarEvent> = {
+  title: "My Event",
+  description: "Awesome event",
+  eventUrl: "https://wwww.google.com",
+  start: 123456789,
+  end: 123456789,
+};
+
 const contactsMinimumMock: Contact[] = [
   {
     id: "123",
     email: null,
+    name: null,
+    firstName: null,
+    lastName: null,
+    organization: null,
+    contactUrl: null,
+    avatarUrl: null,
+    phoneNumbers: [
+      {
+        label: PhoneNumberLabel.WORK,
+        phoneNumber: "+4915799912345",
+      },
+    ],
+  },
+];
+
+const contactsWithMissingField: Partial<Contact>[] = [
+  {
+    id: "123",
     name: null,
     firstName: null,
     lastName: null,
@@ -110,8 +136,8 @@ describe("getContacts", () => {
   });
 
   it("should handle invalid contacts with missing fields", async () => {
-    const contactsBrokenMock: Contact[] = [...contactsMinimumMock];
-    delete contactsBrokenMock[0].name;
+    const contactsBrokenMock = [...contactsWithMissingField] as Contact[];
+
     const controller: Controller = new Controller(
       {
         getContacts: () => Promise.resolve(contactsBrokenMock),
@@ -175,10 +201,10 @@ describe("getCalendarEvents", () => {
   });
 
   it("should handle invalid calendar events", async () => {
-    const calendarEventsBrokenMock: CalendarEvent[] = [
-      { ...calendarEventMock },
-    ];
-    delete calendarEventsBrokenMock[0].id;
+    const calendarEventsBrokenMock = [
+      { ...calendarWithMissingField },
+    ] as CalendarEvent[];
+
     const controller: Controller = new Controller(
       {
         getCalendarEvents: () => Promise.resolve(calendarEventsBrokenMock),
@@ -239,8 +265,10 @@ describe("createCalendarEvent", () => {
   });
 
   it("should handle invalid calendar events", async () => {
-    const calendarEventBrokenMock: CalendarEvent = { ...calendarEventMock };
-    delete calendarEventBrokenMock.id;
+    const calendarEventBrokenMock = {
+      ...calendarWithMissingField,
+    } as CalendarEvent;
+
     const controller: Controller = new Controller(
       {
         createCalendarEvent: () => Promise.resolve(calendarEventBrokenMock),
@@ -301,8 +329,10 @@ describe("updateCalendarEvent", () => {
   });
 
   it("should handle invalid calendar events", async () => {
-    const calendarEventBrokenMock: CalendarEvent = { ...calendarEventMock };
-    delete calendarEventBrokenMock.id;
+    const calendarEventBrokenMock = {
+      ...calendarWithMissingField,
+    } as CalendarEvent;
+
     const controller: Controller = new Controller(
       {
         updateCalendarEvent: () => Promise.resolve(calendarEventBrokenMock),
@@ -371,6 +401,65 @@ describe("deleteCalendarEvent", () => {
     await controller.deleteCalendarEvent(request, response, next);
 
     expect(next).toBeCalledWith(ERROR_MESSAGE);
+  });
+});
+
+describe("getOAuth2RedirectUrl", () => {
+  let request: MockRequest<BridgeRequest>;
+  let response: MockResponse<Response>;
+  let next: jest.Mock;
+
+  beforeEach(() => {
+    request = createRequest();
+    response = createResponse();
+    next = jest.fn();
+  });
+
+  it("should handle OAuth2 callback", async () => {
+    const mockHandleOAuth2Callback = jest.fn();
+
+    const controller: Controller = new Controller(
+      {
+        handleOAuth2Callback: mockHandleOAuth2Callback,
+      },
+      new StorageCache(new MemoryStorageAdapter())
+    );
+
+    await controller.oAuth2Callback(request, response);
+
+    expect(mockHandleOAuth2Callback).toBeCalled();
+    expect(next).not.toBeCalled();
+  });
+
+  it("should handle a custom redirect url", async () => {
+    const mockRedirectUrl =
+      "https://www.clinq.app/settings/integrations/oauth/callback?name=UNKNOWN&key=key&url=URL";
+    const mockRedirect = jest.fn();
+    const mockHandleOAuth2Callback = jest.fn();
+    mockHandleOAuth2Callback.mockReturnValue({
+      apiKey: "key",
+      apiUrl: "URL",
+      redirectUrl: "redirectURL",
+    });
+
+    const controller: Controller = new Controller(
+      {
+        handleOAuth2Callback: mockHandleOAuth2Callback,
+      },
+      new StorageCache(new MemoryStorageAdapter())
+    );
+
+    request = createRequest({
+      query: {
+        redirectUrl: mockRedirectUrl,
+      },
+    });
+    response = { redirect: mockRedirect } as any;
+    await controller.oAuth2Callback(request, response);
+
+    expect(mockHandleOAuth2Callback).toBeCalled();
+    expect(mockRedirect).toBeCalledWith(mockRedirectUrl);
+    expect(next).not.toBeCalled();
   });
 });
 

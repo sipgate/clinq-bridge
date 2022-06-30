@@ -3,7 +3,7 @@ import {
   CalendarEvent,
   CalendarEventTemplate,
   CalendarFilterOptions,
-  CallEvent,
+  CallEvent, ClinqBetaEnvironment,
   Config,
   Contact,
   ContactTemplate,
@@ -42,6 +42,7 @@ export interface Adapter {
   getHealth?: () => Promise<void>;
   getOAuth2RedirectUrl?: (urlConfig?: OAuthURLConfig) => Promise<string>;
   handleOAuth2Callback?: (
-    req: Request
-  ) => Promise<{ apiKey: string; apiUrl: string }>;
+    req: Request,
+    clinqEnvironment?: ClinqBetaEnvironment
+  ) => Promise<{ apiKey: string; apiUrl: string}>;
 }
