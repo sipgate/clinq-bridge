@@ -1,3 +1,4 @@
+import { PhoneNumberLabel } from "./contact.model";
 import * as Ajv from "ajv";
 import { NextFunction, Request, Response } from "express";
 import { stringify } from "querystring";
@@ -38,7 +39,10 @@ function sanitizeContact(contact: Contact, locale: string): Contact {
     ...contact,
     phoneNumbers: contact.phoneNumbers.map((phoneNumber) => ({
       ...phoneNumber,
-      phoneNumber: convertPhoneNumberToE164(phoneNumber.phoneNumber, locale),
+      phoneNumber:
+        phoneNumber.label === PhoneNumberLabel.DIRECTDIAL
+          ? phoneNumber.phoneNumber
+          : convertPhoneNumberToE164(phoneNumber.phoneNumber, locale),
     })),
   };
   return result;
@@ -296,10 +300,8 @@ export class Controller {
             }
           : null;
 
-      const calendarEvents: CalendarEvent[] = await this.adapter.getCalendarEvents(
-        req.providerConfig,
-        filter
-      );
+      const calendarEvents: CalendarEvent[] =
+        await this.adapter.getCalendarEvents(req.providerConfig, filter);
 
       const valid = validate(this.ajv, calendarEventsSchema, calendarEvents);
       if (!valid) {
@@ -345,10 +347,11 @@ export class Controller {
 
       console.log(`Creating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent = await this.adapter.createCalendarEvent(
-        req.providerConfig,
-        req.body as CalendarEventTemplate
-      );
+      const calendarEvent: CalendarEvent =
+        await this.adapter.createCalendarEvent(
+          req.providerConfig,
+          req.body as CalendarEventTemplate
+        );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
@@ -389,11 +392,12 @@ export class Controller {
 
       console.log(`Updating calendar event for key "${anonymizeKey(apiKey)}"`);
 
-      const calendarEvent: CalendarEvent = await this.adapter.updateCalendarEvent(
-        req.providerConfig,
-        req.params.id,
-        req.body as CalendarEventTemplate
-      );
+      const calendarEvent: CalendarEvent =
+        await this.adapter.updateCalendarEvent(
+          req.providerConfig,
+          req.params.id,
+          req.body as CalendarEventTemplate
+        );
 
       const valid = validate(this.ajv, calendarEventsSchema, [calendarEvent]);
       if (!valid) {
