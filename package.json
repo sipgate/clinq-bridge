@@ -64,7 +64,7 @@
     "@types/get-port": "4.2.0",
     "@types/google-libphonenumber": "7.4.23",
     "@types/jest": "25.2.3",
-    "@types/lru-cache": "5.1.1",
+    "@types/lru-cache": "7.10.9",
     "@types/node": "16.11.42",
     "@types/redis": "2.8.32",
     "husky": "7.0.4",
@@ -85,7 +85,7 @@
     "express": "^4.17.1",
     "get-port": "^5.1.1",
     "google-libphonenumber": "^3.2.9",
-    "lru-cache": "^5.1.1",
+    "lru-cache": "^7.0.0",
     "redis": "^3.1.2"
   }
 }
