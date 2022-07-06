@@ -66,7 +66,7 @@
     "@types/jest": "25.2.3",
     "@types/lru-cache": "5.1.1",
     "@types/node": "16.11.42",
-    "@types/redis": "2.8.32",
+    "@types/redis": "4.0.10",
     "husky": "7.0.4",
     "jest": "25.5.4",
     "lint-staged": "10.5.4",
@@ -86,6 +86,6 @@
     "get-port": "^5.1.1",
     "google-libphonenumber": "^3.2.9",
     "lru-cache": "^5.1.1",
-    "redis": "^3.1.2"
+    "redis": "^4.0.0"
   }
 }
