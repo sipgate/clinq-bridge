@@ -3,7 +3,8 @@ import {
   CalendarEvent,
   CalendarEventTemplate,
   CalendarFilterOptions,
-  CallEvent, ClinqBetaEnvironment,
+  CallEvent,
+  ClinqBetaEnvironment,
   Config,
   Contact,
   ContactTemplate,
@@ -12,6 +13,7 @@ import {
 } from ".";
 
 export interface Adapter {
+  getToken?: () => Promise<{ apiKey: string }>;
   getContacts?: (config: Config) => Promise<Contact[]>;
   createContact?: (
     config: Config,
@@ -44,5 +46,5 @@ export interface Adapter {
   handleOAuth2Callback?: (
     req: Request,
     clinqEnvironment?: ClinqBetaEnvironment
-  ) => Promise<{ apiKey: string; apiUrl: string}>;
+  ) => Promise<{ apiKey: string; apiUrl: string }>;
 }

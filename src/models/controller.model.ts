@@ -128,6 +128,10 @@ export class Controller {
         } cached contacts for key "${anonymizeKey(apiKey)}"`
       );
 
+      if (this.adapter.getToken) {
+        const { apiKey } = await this.adapter.getToken();
+        res.header("X-Provider-Key", apiKey);
+      }
       res.send(responseContacts);
     } catch (error) {
       console.error("Could not get contacts:", error || "Unknown");
@@ -168,6 +172,11 @@ export class Controller {
       }
 
       const sanitizedContact: Contact = sanitizeContact(contact, locale);
+
+      if (this.adapter.getToken) {
+        const { apiKey } = await this.adapter.getToken();
+        res.header("X-Provider-Key", apiKey);
+      }
       res.send(sanitizedContact);
 
       if (this.contactCache) {
@@ -215,6 +224,11 @@ export class Controller {
       }
 
       const sanitizedContact: Contact = sanitizeContact(contact, locale);
+
+      if (this.adapter.getToken) {
+        const { apiKey } = await this.adapter.getToken();
+        res.header("X-Provider-Key", apiKey);
+      }
       res.send(sanitizedContact);
 
       if (this.contactCache) {
@@ -251,6 +265,11 @@ export class Controller {
 
       const contactId: string = req.params.id;
       await this.adapter.deleteContact(req.providerConfig, contactId);
+
+      if (this.adapter.getToken) {
+        const { apiKey } = await this.adapter.getToken();
+        res.header("X-Provider-Key", apiKey);
+      }
       res.status(200).send();
 
       if (this.contactCache) {
