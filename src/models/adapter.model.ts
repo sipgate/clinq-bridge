@@ -13,7 +13,7 @@ import {
 } from ".";
 
 export interface Adapter {
-  getToken?: () => Promise<{ apiKey: string }>;
+  getToken?: (config: Config) => Promise<{ apiKey: string }>;
   getContacts?: (config: Config) => Promise<Contact[]>;
   createContact?: (
     config: Config,
