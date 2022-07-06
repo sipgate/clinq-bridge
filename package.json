@@ -83,7 +83,7 @@
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "get-port": "^5.1.1",
+    "get-port": "^6.0.0",
     "google-libphonenumber": "^3.2.9",
     "lru-cache": "^5.1.1",
     "redis": "^3.1.2"
