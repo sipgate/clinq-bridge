@@ -1,3 +1,7 @@
+### ⚠️ This framework has been deprecated! ⚠️
+
+Please use [integration-bridge-framework](https://github.com/sipgate/integration-bridge-framework) for future projects.
+
 # CLINQ Bridge Framework
 
 This is the CLINQ Bridge framework for developing integration services.
